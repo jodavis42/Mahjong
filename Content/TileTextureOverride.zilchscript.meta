@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "TileTextureOverride"
+		var ResourceId = 0x595978813f882d29
+	}
+}

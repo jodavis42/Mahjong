@@ -1,0 +1,20 @@
+[Version:1]
+DataContent 
+{
+	ContentTags 
+	{
+		var Tags = Array
+		{
+			"Archetype"
+			"Cog"
+		}
+	}
+	DataBuilder 
+	{
+		var Name = "MahjongTile"
+		var ResourceId = 0x595a3ce94a968191
+		var LoaderType = "Cog"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

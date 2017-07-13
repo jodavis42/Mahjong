@@ -1,0 +1,213 @@
+[Version:1]
+ResourceTable 
+{
+	var ResourceType = "Archetype"
+	var EntryList = Array
+	{
+		Object
+		{
+			var Name = "OneDot"
+			var Value = "OneDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "TwoDot"
+			var Value = "TwoDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "ThreeDot"
+			var Value = "ThreeDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FourDot"
+			var Value = "FourDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FiveDot"
+			var Value = "FiveDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SixDot"
+			var Value = "SixDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SevenDot"
+			var Value = "SevenDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "EightDot"
+			var Value = "EightDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "NineDot"
+			var Value = "NineDot"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "OneBamboo"
+			var Value = "595a3299a27ffd28:OneBambo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "TwoBamboo"
+			var Value = "TwoBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "ThreeBamboo"
+			var Value = "ThreeBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FourBamboo"
+			var Value = "FourBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FiveBamboo"
+			var Value = "FiveBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SixBamboo"
+			var Value = "SixBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SevenBamboo"
+			var Value = "SevenBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "EightBamboo"
+			var Value = "EightBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "NineBamboo"
+			var Value = "NineBamboo"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "OneCharacter"
+			var Value = "OneCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "TwoCharacter"
+			var Value = "TwoCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "ThreeCharacter"
+			var Value = "ThreeCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FourCharacter"
+			var Value = "FourCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "FiveCharacter"
+			var Value = "FiveCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SixCharacter"
+			var Value = "SixCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SevenCharacter"
+			var Value = "SevenCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "EightCharacter"
+			var Value = "EightCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "NineCharacter"
+			var Value = "NineCharacter"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "RedDragon"
+			var Value = "RedDragon"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "WhiteDragon"
+			var Value = "WhiteDragon"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "GreenDragon"
+			var Value = "GreenDragon"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "NorthWind"
+			var Value = "NorthWind"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "SouthWind"
+			var Value = "SouthWind"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "EastWind"
+			var Value = "EastWind"
+			var Weight = 4
+		}
+		Object
+		{
+			var Name = "WestWind"
+			var Value = "WestWind"
+			var Weight = 4
+		}
+	}
+	var MaxWeight = 4
+}

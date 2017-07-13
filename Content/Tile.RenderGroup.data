@@ -1,0 +1,9 @@
+[Version:1]
+RenderGroup 
+{
+	var Materials = Array
+	{
+		"595a3ab21869ddf0:Tile"
+	}
+	var GraphicalSortMethod = GraphicalSortMethod.None
+}

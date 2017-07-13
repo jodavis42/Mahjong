@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "WallManager"
+		var ResourceId = 0x59592ce694f6f1f9
+	}
+}

@@ -1,0 +1,88 @@
+enum TileSuit{Dot, Bamboo, Character, Wind, Dragon}
+enum TileNumber{One, Two, Three, Four, Five, Six, Seven, Eight, Nine, None}
+enum DragonType{White, Green, Red, None}
+enum WindType{East, South, West, North, None}
+
+enum TileType{OneDot, TwoDot, ThreeDot, FourDot, FiveDot, SixDot, SevenDot, EightDot, NineDot,
+OneBamboo, TwoBamboo, ThreeBamboo, FourBamboo, FiveBamboo, SixBamboo, SevenBamboo, EightBamboo, NineBamboo,
+OneCharacter, TwoCharacter, ThreeCharacter, FourCharacter, FiveCharacter, SixCharacter, SevenCharacter, EightCharacter, NineCharacter,
+EastWind, SouthWind, WestWind, NorthWind,
+WhiteDragon, GreenDragon, RedDragon}
+
+[RunInEditor]
+class Tile : ZilchComponent
+{
+  var TileTypeInternal : TileType = TileType.OneDot;
+  //var Number : TileNumber = 
+  var Number : TileNumber = TileNumber.None;
+  var Dragon : DragonType = DragonType.None;
+  var Wind : WindType = WindType.None;
+  var Suit : TileSuit;
+  
+  [Property][ShaderInput] var AlbedoMap : Texture;
+  
+  [Property] var TileType : TileType
+  {
+    get { return this.TileTypeInternal; }
+    set { this.SetTileType(value); }
+  }
+  
+  function SetTileType(tileType : TileType)
+  {
+    this.TileTypeInternal = tileType;
+    this.Number = TileNumber.None;
+    this.Wind = WindType.None;
+    this.Dragon = DragonType.None;
+    if(this.TileTypeInternal >= TileType.OneDot && this.TileTypeInternal <= TileType.NineDot)
+    {
+      this.Suit = TileSuit.Dot;
+      this.Number = (tileType as Integer - TileType.OneDot as Integer) as TileNumber;
+    }
+    else if(this.TileTypeInternal >= TileType.OneBamboo && this.TileTypeInternal <= TileType.NineBamboo)
+    {
+      this.Suit = TileSuit.Bamboo;
+      this.Number = (tileType as Integer - TileType.OneDot as Integer) as TileNumber;
+    }
+    else if(this.TileTypeInternal >= TileType.OneCharacter && this.TileTypeInternal <= TileType.NineCharacter)
+    {
+      this.Suit = TileSuit.Character;
+      this.Number = (tileType as Integer - TileType.OneDot as Integer) as TileNumber;
+    }
+    else if(this.TileTypeInternal >= TileType.NorthWind && this.TileTypeInternal <= TileType.WestWind)
+    {
+      this.Suit = TileSuit.Wind;
+      this.Wind = (tileType as Integer - TileType.NorthWind as Integer) as WindType;
+    }
+    else if(this.TileTypeInternal >= TileType.WhiteDragon && this.TileTypeInternal <= TileType.RedDragon)
+    {
+      this.Suit = TileSuit.Wind;
+      this.Dragon = (tileType as Integer - TileType.WhiteDragon as Integer) as DragonType;
+    }
+    
+    var entry = ResourceTable.TileToTextures.GetOrNull("`this.TileTypeInternal`");
+    if(entry != null)
+      this.AlbedoMap = entry.Resource as Texture;
+    
+    if(this.Owner == null)
+      return;
+      
+    var spriteTextCog = this.Owner.FindChildByName("SpriteText");
+    if(spriteTextCog != null)
+    {
+      var spriteText = spriteTextCog.SpriteText;
+      if(spriteText != null)
+        spriteText.Text = "`tileType`\n";
+    }
+    
+    
+  }
+  
+  function Initialize(init : CogInitializer)
+  {
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+}

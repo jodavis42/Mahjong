@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "Tile"
+		var ResourceId = 0x595a3ab21869ddf0
+		var LoaderType = "Material"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

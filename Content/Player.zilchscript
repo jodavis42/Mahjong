@@ -1,0 +1,77 @@
+class Player : ZilchComponent
+{
+  [Dependency] var Camera : Camera;
+  [Property] var HandPath : CogPath = CogPath();
+  
+  var Hand : PlayerHandManager;
+  
+  var SelectedTile : Cog = null;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
+    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    Zero.Connect(this.Owner, Events.BeginPlayerTurn, this.OnBeginPlayerTurn);
+    Zero.Connect(this.Owner, Events.EndPlayerTurn, this.OnEndPlayerTurn);
+  }
+
+  function OnBeginPlayerTurn(event : ZilchEvent)
+  {
+    
+  }
+  
+  function OnEndPlayerTurn(event : ZilchEvent)
+  {
+    
+  }
+
+  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  {
+    this.Hand = this.HandPath.Cog.PlayerHandManager;
+    Zero.Connect(this.Hand, Events.LeftMouseDown, this.OnLeftMouseDown);
+  }
+
+  function OnLeftMouseDown(event : ViewportMouseEvent)
+  {
+    var tileCog = event.HitObject;
+    
+    if(this.SelectedTile == tileCog)
+    {
+      this.SelectTile(null);
+      return;
+    }
+    
+    if(this.SelectedTile != null)
+    {
+      this.Hand.SwapTiles(this.SelectedTile, tileCog, 10);
+      this.SelectedTile = null;
+      return;
+    }
+    
+    this.SelectTile(tileCog);
+  }
+  
+  function SelectTile(cog : Cog)
+  {
+    var group = Actions.Group(this.Owner.Actions);
+    Console.WriteLine(this.SelectedTile, cog);
+    if(this.SelectedTile != null)
+    {
+      var downPos = this.SelectedTile.Transform.WorldTranslation;
+      downPos.Y = this.Hand.TilePosY;
+      Actions.Property(group, @this.SelectedTile.Transform.WorldTranslation, downPos, 0.1, Ease.Linear);
+    }
+    
+    if(cog != null)
+    {
+      var upPos = cog.Transform.WorldTranslation;
+      upPos.Y = this.Hand.SelectedTilePosY;
+      Actions.Property(group, @cog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
+    }
+    this.SelectedTile = cog;
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+}

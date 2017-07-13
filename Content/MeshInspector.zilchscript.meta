@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "MeshInspector"
+		var ResourceId = 0x59590f00ed1d6ab9
+	}
+}

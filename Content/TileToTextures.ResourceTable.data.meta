@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "TileToTextures"
+		var ResourceId = 0x59591b8111e556ef
+		var LoaderType = "ResourceTable"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

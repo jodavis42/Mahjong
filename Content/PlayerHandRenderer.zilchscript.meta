@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "PlayerHandRenderer"
+		var ResourceId = 0x5959c1412ed3af8d
+	}
+}

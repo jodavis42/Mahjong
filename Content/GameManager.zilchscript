@@ -1,0 +1,252 @@
+class GameManager : ZilchComponent
+{
+  [Property] var TurnTime : Real = 15;
+  [Static] var TotalTiles : Integer = 17 * 2 * 4;
+  
+  [Property] var EastWallPath : CogPath = CogPath(":/Walls/EastWallGroup");
+  [Property] var SouthWallPath : CogPath = CogPath(":/Walls/SouthWallGroup");
+  [Property] var WestWallPath : CogPath = CogPath(":/Walls/WestWallGroup");
+  [Property] var NorthWallPath : CogPath = CogPath(":/Walls/NorthWallGroup");
+  var WallCogs : Array[Cog] = Array[Cog]();
+  
+  [Property] var EastHandPath : CogPath = CogPath(":/Hands/EastHandGroup");
+  [Property] var SouthHandPath : CogPath = CogPath(":/Hands/SouthHandGroup");
+  [Property] var WestHandPath : CogPath = CogPath(":/Hands/WestHandGroup");
+  [Property] var NorthHandPath : CogPath = CogPath(":/Hands/NorthHandGroup");
+  var HandCogs : Array[Cog] = Array[Cog]();
+  
+  [Property] var EastPlayerPath : CogPath = CogPath(":/Players/EastPlayer");
+  [Property] var SouthPlayerPath : CogPath = CogPath(":/Players/SouthPlayer");
+  [Property] var WestPlayerPath : CogPath = CogPath(":/Players/WestPlayer");
+  [Property] var NorthPlayerPath : CogPath = CogPath(":/Players/NorthPlayer");
+  var PlayerCogs : Array[Cog] = Array[Cog]();
+  
+  [Property] var TimerTextCogPath : CogPath = CogPath(":/TimeText");
+  [Property] var CurrentPlayerTextCogPath : CogPath = CogPath(":/CurrentPlayerText");
+  
+  [Property] var CurrentPlayer : WindType = WindType.None;
+  sends BeginPlayerTurn : ZilchEvent;
+  sends EndPlayerTurn : ZilchEvent;
+  
+  var TurnAction : ActionSet = null;
+  var TurnTimer : Real = 0;
+  
+  var GlobalTileIndex : Integer;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
+  }
+
+  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  {
+    this.WallCogs.Add(this.EastWallPath.Cog);
+    this.WallCogs.Add(this.SouthWallPath.Cog);
+    this.WallCogs.Add(this.WestWallPath.Cog);
+    this.WallCogs.Add(this.NorthWallPath.Cog);
+    
+    this.HandCogs.Add(this.EastHandPath.Cog);
+    this.HandCogs.Add(this.SouthHandPath.Cog);
+    this.HandCogs.Add(this.WestHandPath.Cog);
+    this.HandCogs.Add(this.NorthHandPath.Cog);
+    
+    this.PlayerCogs.Add(this.EastPlayerPath.Cog);
+    this.PlayerCogs.Add(this.SouthPlayerPath.Cog);
+    this.PlayerCogs.Add(this.WestPlayerPath.Cog);
+    this.PlayerCogs.Add(this.NorthPlayerPath.Cog);
+    
+    this.CreateWall();
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+    this.TurnTimer -= event.Dt;
+    if(this.CurrentPlayer == WindType.None)
+    {
+      var timeText = this.TimerTextCogPath.Cog.SpriteText;
+      var playerText = this.CurrentPlayerTextCogPath.Cog.SpriteText;
+      timeText.Visible = false;
+      playerText.Visible = false;
+      timeText.Text = String.FormatC("Time: %.2f", this.TurnTimer);
+      playerText.Text = "Player: `this.CurrentPlayer`";
+    }
+    else
+    {
+      var timeText = this.TimerTextCogPath.Cog.SpriteText;
+      var playerText = this.CurrentPlayerTextCogPath.Cog.SpriteText;
+      timeText.Visible = true;
+      playerText.Visible = true;
+      timeText.Text = String.FormatC("Time: %.1f", this.TurnTimer);
+      playerText.Text = "Player: `this.CurrentPlayer`";
+    }
+  }
+  
+  function CreateWall()
+  {
+    var archetypes = this.GetTileArchetypes4Player();
+    var randomArchetypes = this.Randomize(archetypes, this.Owner.RandomContext);
+    
+    for(var i = 0; i < randomArchetypes.Count; ++i)
+    {
+      var wallIndex = this.GlobalTileIndexToWallIndex(i).X;
+      var archetype = randomArchetypes[i];
+      var wallCog = this.WallCogs[wallIndex];
+      
+      wallCog.WallManager.AddTileToWall(archetype);
+    }
+    
+    var seq = Action.Sequence(this.Owner.Actions);
+    Action.Delay(seq, 1);
+    Action.Call(seq, this.MakePlayerHands);
+  }
+  
+  function GlobalTileIndexToWallIndex(tileIndex : Integer) : Integer2
+  {
+    var wallTileCount = 17 * 2;
+    return Integer2(tileIndex / wallTileCount, tileIndex % wallTileCount);
+  }
+  
+  function MakePlayerHands()
+  {
+    var index = 4;
+    
+    this.GlobalTileIndex = index;
+    var seq = Actions.Sequence(this.Owner.Actions);    
+    for(var mainGroup = 0; mainGroup < 3; ++mainGroup)
+    {
+      var seq2 = Actions.Sequence(seq);
+      
+      for(var playerIndex = 0; playerIndex < 4; ++playerIndex)
+      {
+        var seq3 = Actions.Sequence(seq2);
+        var group = Actions.Group(seq3);
+        
+        for(var subIndex = 0; subIndex < 4; ++subIndex)
+        {
+          this.AnimateTileToHand(this.GlobalTileIndex, playerIndex, group);
+          this.GlobalTileIndex = this.FixGlobalIndex(this.GlobalTileIndex + 1);
+        }
+      }
+    }
+    
+    var finalIndices = Array[Integer]();
+    finalIndices.Add(this.FixGlobalIndex(index - 5));
+    finalIndices.Add(this.FixGlobalIndex(index - 6));
+    finalIndices.Add(this.FixGlobalIndex(index - 7));
+    finalIndices.Add(this.FixGlobalIndex(index - 8));
+    finalIndices.Add(this.FixGlobalIndex(index - 9));
+    
+    for(var i = 0; i < 5; ++i)
+    {
+      var playerIndex = i % 4;
+      var globalIndex = finalIndices[i];
+      this.AnimateTileToHand(globalIndex, playerIndex, seq);
+      globalIndex = (globalIndex + GameManager.TotalTiles - 1) % GameManager.TotalTiles;
+    }
+    Action.Call(seq, this.FinishedSetup);
+  }
+  
+  function FixGlobalIndex(index : Integer) : Integer
+  {
+    if(index < 0)
+      index += GameManager.TotalTiles;
+    return index % GameManager.TotalTiles;
+  }
+  
+  function GetCurrentPlayerCog() : Cog
+  {
+    return this.PlayerCogs[this.CurrentPlayer as Integer];
+  }
+  
+  function FinishedSetup()
+  {
+    this.CurrentPlayer = WindType.East;
+    var currentPlayer = this.GetCurrentPlayerCog();
+    
+    currentPlayer.DispatchEvent(Events.BeginPlayerTurn, ZilchEvent());
+    
+    this.QueueTurnActions();
+  }
+  
+  function QueueTurnActions()
+  {
+    this.TurnAction = Action.Sequence(this.Owner.Actions);
+    Action.Delay(this.TurnAction, this.TurnTime);
+    Action.Call(this.TurnAction, this.OutOfTurnTime);
+    
+    this.TurnTimer = this.TurnTime;
+  }
+  
+  function OutOfTurnTime()
+  {
+    var currentPlayer = this.GetCurrentPlayerCog();
+    currentPlayer.DispatchEvent(Events.EndPlayerTurn, ZilchEvent());
+    
+    var playerIndex = this.CurrentPlayer as Integer;
+    playerIndex = (playerIndex + 1) % 4;
+    this.CurrentPlayer = playerIndex as WindType;
+    this.QueueTurnActions();
+  }
+  
+  function AnimateTileToHand(globalTileIndex : Integer, playerIndex : Integer, actionSet : ActionSet)
+  {
+    var wallTileIndex = this.GlobalTileIndexToWallIndex(globalTileIndex);
+    var wallIndex = wallTileIndex.X;
+    var tileIndex = wallTileIndex.Y;
+    var wall = this.WallCogs[wallIndex].WallManager;
+    var tileCog = wall.GetTile(tileIndex);
+  
+    var playerHand = this.HandCogs[playerIndex].PlayerHandManager;
+    this.AnimateTileToHand(tileCog, playerHand, actionSet);
+  }
+  
+  function AnimateTileToHand(tileCog : Cog, playerHand : PlayerHandManager, actionSet : ActionSet)
+  {
+    var mainSeq = Actions.Sequence(actionSet);
+    var animateToHandGroup = Actions.Group(mainSeq);
+    //var seq2 = Actions.Sequence(seq);
+    
+    var handPos = playerHand.AddTileNoAnimation(tileCog);
+    var faceDownRot = playerHand.GetFaceDownWorldRotationForCog(tileCog);
+    var faceUpRot = playerHand.GetFaceUpWorldRotationForCog(tileCog);
+    
+    var transform = tileCog.Transform;
+    Actions.Property(animateToHandGroup, @transform.WorldRotation, faceDownRot, 0.25, Ease.Linear);
+    Actions.Property(animateToHandGroup, @transform.WorldTranslation, handPos, 0.3, Ease.Linear);
+    
+    var flipFaceUpGroup = Actions.Group(mainSeq);
+    Actions.Property(flipFaceUpGroup, @transform.WorldRotation, faceUpRot, 0.1, Ease.Linear);
+  }
+  
+  function Randomize(array : Array[Archetype], random : RandomContext) : Array[Archetype]
+  {
+    var results = Array[Archetype]();
+    
+    while(array.Count != 0)
+    {
+      var index = random.RangeExclusiveMax(0, array.Count);
+      results.Add(array[index]);
+      array.RemoveSwap(index);
+    }
+    
+    return results;
+  }
+  
+  function GetTileArchetypes4Player() : Array[Archetype]
+  {
+    var results = Array[Archetype]();
+    var table = ResourceTable.TileToArchetypes;
+    for(var i = 0; i < table.Count; ++i)
+    {
+      var entry = table[i];
+      for(var count = 0; count < entry.Weight; ++count)
+      {
+        results.Add(entry.Resource as Archetype);
+      }
+    }
+    
+    return results;
+  }
+}
+

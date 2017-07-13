@@ -1,0 +1,135 @@
+class PlayerHandManager : ZilchComponent
+{
+  [Property] var TileWidth : Real = 1;
+  [Property] var SpaceBetweenTiles : Real = 0.1;
+  [Property] var HeightOffset : Real = 0.25;
+  [Property] var SelectedHeightOffset : Real = 0.5;
+  
+  [Static] var HandSize : Integer = 14;
+  [Dependency] var Transform : Transform;
+  [Dependency] var Orientation : Orientation;
+  var Tiles : Array[Cog] = Array[Cog]();
+  
+  
+  function Initialize(init : CogInitializer)
+  {
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+  
+  var WorldForward : Real3 { get { return this.Orientation.WorldForward;} }
+  var WorldUp : Real3 { get { return this.Orientation.WorldUp;} }
+  var TilePosY : Real
+  {
+    get { return this.Transform.WorldTranslation.Y + this.HeightOffset;}
+  }
+  var SelectedTilePosY : Real
+  {
+    get { return this.Transform.WorldTranslation.Y + this.SelectedHeightOffset;}
+  }
+  
+  function TileCogFromIndex(index : Integer) : Cog
+  {
+    if(0 <= index && index <= this.Tiles.Count)
+      return this.Tiles[index];
+    return null;
+  }
+  
+  function IndexFromCog(cog : Cog) : Integer
+  {
+    for(var i = 0; i < this.Tiles.Count; ++i)
+    {
+      if(this.Tiles[i] == cog)
+        return i;
+    }
+    return -1;
+  }
+  
+  function SwapTiles(cogA : Cog, cogB : Cog, speed : Real)
+  {
+    // Get the indices and positions for these tiles
+    var indexA = this.IndexFromCog(cogA);
+    var indexB = this.IndexFromCog(cogB);
+    var posA = this.GetTilePosition(indexA);
+    var posB = this.GetTilePosition(indexB);
+    // Swap the actual tile indices
+    this.Tiles[indexA] = cogB;
+    this.Tiles[indexB] = cogA;
+    
+    var forwardTime = 0.05;
+    var forwardOffset = 0.1;
+    var forward = this.WorldForward;
+    var forwardA = posA + forward * forwardOffset;
+    var forwardB = posB + forward * forwardOffset;
+    
+    // Compute a normalized time for how fast the tiles should move
+    var dist = Math.Distance(posA, posB);
+    var normalizedTime = dist / speed;
+    
+    var seq = Actions.Sequence(this.Owner.Actions);
+    
+    // Move both tiles forward slightly (to avoid z-fighting)
+    var moveForwardGroup = Actions.Group(seq);
+    Actions.Property(moveForwardGroup, @cogA.Transform.WorldTranslation, forwardA, forwardTime, Ease.Linear);
+    Actions.Property(moveForwardGroup, @cogB.Transform.WorldTranslation, forwardB, forwardTime, Ease.Linear);
+    
+    // Swap their positions at a constant speed
+    var swapGroup = Actions.Group(seq);
+    Actions.Property(swapGroup, @cogA.Transform.WorldTranslation, forwardB, normalizedTime, Ease.Linear);
+    Actions.Property(swapGroup, @cogB.Transform.WorldTranslation, forwardA, normalizedTime, Ease.Linear);
+    
+    // Move the tiles back into place
+    var moveBackGroup = Actions.Group(seq);
+    Actions.Property(moveBackGroup, @cogA.Transform.WorldTranslation, posB, forwardTime, Ease.Linear);
+    Actions.Property(moveBackGroup, @cogB.Transform.WorldTranslation, posA, forwardTime, Ease.Linear);
+  }
+  
+  function AddTileNoAnimation(cog : Cog) : Real3
+  {
+    this.Tiles.Add(cog);
+    Zero.Connect(cog, Events.LeftMouseDown, this.ForwardEvent);
+    var index = this.Tiles.LastIndex;
+    return this.GetTilePosition(index);
+  }
+  
+  function ForwardEvent(event : Event)
+  {
+    this.Owner.DispatchEvent(event.EventId, event);
+  }
+  
+  function GetTilePosition(index : Integer) : Real3
+  {
+    var pos = this.Transform.WorldTranslation;
+    var halfHandSize = (PlayerHandManager.HandSize / 2.0);
+    var totalHandSize = PlayerHandManager.HandSize * this.TileWidth + (PlayerHandManager.HandSize - 1) * this.SpaceBetweenTiles;
+    
+    var worldOffsetRight = this.Orientation.WorldRight * totalHandSize / 2.0;
+    
+    var worldLeftEdge = pos + worldOffsetRight;
+    var leftToRightDirection = -this.Orientation.WorldRight;
+    
+    
+    var localXOffset = index * (this.TileWidth + this.SpaceBetweenTiles);
+    var localYOffset = this.HeightOffset;
+    var offset = Real3();
+    offset += leftToRightDirection * localXOffset;
+    offset += Real3.YAxis * localYOffset;
+    
+    return worldLeftEdge + offset;
+  }
+  
+  function GetFaceDownWorldRotationForCog(cog : Cog) : Quaternion
+  {
+    var cogOrientation = cog.Orientation;
+    return cogOrientation.GetLookAtDirectionWithUpRotation(-this.Orientation.WorldUp, this.Orientation.WorldForward);
+  }
+  
+  function GetFaceUpWorldRotationForCog(cog : Cog) : Quaternion
+  {
+    var cogOrientation = cog.Orientation;
+    return cogOrientation.GetLookAtDirectionWithUpRotation(this.Orientation.WorldForward, this.Orientation.WorldUp);
+  }
+}

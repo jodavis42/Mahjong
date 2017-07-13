@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "Tiles"
+		var ResourceId = 0x595a38bff83d67bc
+		var LoaderType = "Level"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

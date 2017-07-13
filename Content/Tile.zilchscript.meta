@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "Tile"
+		var ResourceId = 0x595a3b07e8f119a7
+	}
+}

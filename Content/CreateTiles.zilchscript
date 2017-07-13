@@ -1,0 +1,32 @@
+[Command(autoRegister:true)]
+class CreateTiles : ZilchComponent
+{
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Owner, Events.CommandExecute, this.OnCommandExecute);
+  }
+
+  function OnCommandExecute(event : CommandEvent)
+  {
+    var tileTypeId = typeid(TileType);
+    //var props = tileType.GetProperties(Members.Static);
+    var i = 0;
+    var pos = Real3(-10, 10, 0);
+    foreach(var props in tileTypeId.Properties)
+    {
+      ++i;
+      var tileCog = event.Space.CreateAtPosition(Archetype.MahjonTile, pos);
+      tileCog.Tile.TileType = props.GetValue(null);
+      tileCog.ClearArchetype();
+      
+      if(i >= 9)
+      {
+        pos.X = -10;
+        pos.Y -= 3;
+        i = 0;
+      }
+      else
+        pos.X += 2.0;
+    }
+  }
+}

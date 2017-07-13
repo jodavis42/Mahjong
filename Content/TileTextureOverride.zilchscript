@@ -1,0 +1,15 @@
+class TileTextureOverride : ZilchComponent
+{
+  [Property][ShaderInput] var AlbedoMap : Texture = null;
+  var Mesh : Mesh = Mesh.CreateRuntime();
+  
+  function Initialize(init : CogInitializer)
+  {
+    //this.Mesh.Vertices.AddReal(Real3(
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+}

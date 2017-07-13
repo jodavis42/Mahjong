@@ -1,0 +1,42 @@
+class WallManager : ZilchComponent
+{
+  [Dependency] var Transform : Transform;
+  [Dependency] var Orientation : Orientation;
+  
+  var Tiles : Array[Cog] = Array[Cog]();
+  
+  function Initialize(init : CogInitializer)
+  {
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+  
+  function AddTileToWall(archetype : Archetype)
+  {
+    var pos = this.Transform.WorldTranslation;
+    var worldOffsetRight = this.Orientation.WorldRight * 17/ 2.0;
+    
+    var worldLeftEdge = pos + worldOffsetRight;
+    var leftToRightDirection = -this.Orientation.WorldRight;
+    
+    
+    var localXOffset = (this.Tiles.Count / 2);
+    var localYOffset = (this.Tiles.Count % 2) * 0.5;
+    var offset = Real3();
+    offset += leftToRightDirection * localXOffset;
+    offset += Real3.YAxis * localYOffset;
+    //Console.WriteLine(pos, localLeftEdge, worldLeftEdge, offset);
+    
+    var cog = this.Space.CreateAtPosition(archetype, worldLeftEdge + offset);
+    cog.Orientation.LookAtDirectionWithUp(this.Orientation.WorldForward, this.Orientation.WorldUp);
+    this.Tiles.Add(cog);
+  }
+  
+  function GetTile(index : Integer) : Cog
+  {
+    return this.Tiles[index];
+  }
+}

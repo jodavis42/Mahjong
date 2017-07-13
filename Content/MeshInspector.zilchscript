@@ -1,0 +1,51 @@
+[RunInEditor]
+class MeshInspector : ZilchComponent
+{
+  [Dependency] var Model : Model;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Space, Events.FrameUpdate, this.OnFrameUpdate);
+  }
+
+  function OnFrameUpdate(event : UpdateEvent)
+  {
+    var mat = this.Owner.Transform.WorldMatrix;
+    
+    var mesh = this.Model.Mesh;
+    for(var i = 0; i < mesh.Indices.Count; i += 3)
+    {
+      var i0 = mesh.Indices[i];
+      var i1 = mesh.Indices[i + 1];
+      var i2 = mesh.Indices[i + 2];
+      
+      var p0 = Math.MultiplyPoint(mat, mesh.Vertices.GetVertexData(i0, VertexSemantic.Position).XYZ);
+      var uv0 = mesh.Vertices.GetVertexData(i0, VertexSemantic.Uv).XY;
+      var n0 = mesh.Vertices.GetVertexData(i0, VertexSemantic.Normal).XYZ;
+      var r0 = Math.RotationQuaternionBetween(Real3.ZAxis, n0);
+      DebugDraw.Add(DebugText(p0.XYZ + n0 * 0.25, 0.1, "`uv0`") {Centered = true, Rotation = r0});
+      
+      var p1 = Math.MultiplyPoint(mat, mesh.Vertices.GetVertexData(i1, VertexSemantic.Position).XYZ);
+      var uv1 = mesh.Vertices.GetVertexData(i1, VertexSemantic.Uv).XY;
+      var n1 = mesh.Vertices.GetVertexData(i1, VertexSemantic.Normal).XYZ;
+      var r1 = Math.RotationQuaternionBetween(Real3.ZAxis, n1);
+      DebugDraw.Add(DebugText(p1.XYZ + n1 * 0.25, 0.1, "`uv1`") {Centered = true, Rotation = r1});
+      
+      var p2 = Math.MultiplyPoint(mat, mesh.Vertices.GetVertexData(i2, VertexSemantic.Position).XYZ);
+      var uv2 = mesh.Vertices.GetVertexData(i2, VertexSemantic.Uv).XY;
+      var n2 = mesh.Vertices.GetVertexData(i2, VertexSemantic.Normal).XYZ;
+      var r2 = Math.RotationQuaternionBetween(Real3.ZAxis, n2);
+      DebugDraw.Add(DebugText(p2.XYZ + n2 * 0.25, 0.1, "`uv2`") {Centered = true, Rotation = r2});
+      
+      Console.WriteLine(uv0, uv1, uv2);
+      //if(i > 0)
+      //  break;
+      //break;
+    }
+    
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+}

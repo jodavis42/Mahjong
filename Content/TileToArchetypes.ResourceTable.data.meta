@@ -1,0 +1,12 @@
+[Version:1]
+DataContent 
+{
+	DataBuilder 
+	{
+		var Name = "TileToArchetypes"
+		var ResourceId = 0x595911ce075364b6
+		var LoaderType = "ResourceTable"
+		var Version = 0
+		var ShowInEditor = true
+	}
+}

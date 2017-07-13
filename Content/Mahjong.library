@@ -1,0 +1,8 @@
+[Version:1]
+ContentLibrary 
+{
+	var Name = "Mahjong"
+	var LibraryId = 0x595a2d650ab17c3f
+	var SourceControlType = ""
+	var ReadOnly = false
+}

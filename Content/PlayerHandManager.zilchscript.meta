@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "PlayerHandManager"
+		var ResourceId = 0x59592bed25b1b85b
+	}
+}
