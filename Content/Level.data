@@ -41,8 +41,8 @@ Level
 		}
 		RandomContext 
 		{
-			var RandomSeed = true
-			var Seed = 3936119513
+			var RandomSeed = false
+			var Seed = 3421809637
 		}
 		GameManager 
 		{
@@ -402,7 +402,7 @@ Level
 		var LinkId = 18
 		Transform 
 		{
-			var Translation = Real3{-11.6094065, 36.3936348, 1.20314121}
+			var Translation = Real3{-7.47911167, 9.57202148, 3.76160669}
 			var Scale = Real3{1, 1, 1}
 			var Rotation = Quaternion{-0.336033374, -0.482116163, -0.207133457, 0.782138944}
 		}
@@ -464,7 +464,7 @@ Level
 			var LookDistance = 12.1620255
 			var VerticalAngle = 0.811578095
 			var HorizontalAngle = 7.38797808
-			var LookTarget = Real3{-4.1302948, 27.5716133, -2.55846596}
+			var LookTarget = Real3{0, 0.75, -4.76837158e-07}
 			var MoveSensitivity = 1
 		}
 	}
