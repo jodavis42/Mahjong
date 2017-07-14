@@ -1,27 +1,28 @@
 class PlayerHandManager : ZilchComponent
 {
+  [Dependency] var Transform : Transform;
+  [Dependency] var Orientation : Orientation;
+  
+  [Static] var HandSize : Integer = 14;
+  
   [Property] var TileWidth : Real = 1;
   [Property] var SpaceBetweenTiles : Real = 0.1;
   [Property] var HeightOffset : Real = 0.25;
   [Property] var SelectedHeightOffset : Real = 0.5;
+  [Property] var DiscardHandPath : CogPath = CogPath(":/Discards/EastDiscard");
   
-  [Static] var HandSize : Integer = 14;
-  [Dependency] var Transform : Transform;
-  [Dependency] var Orientation : Orientation;
+  sends FinishedTileSwap : ZilchEvent;
+  
   var Tiles : Array[Cog] = Array[Cog]();
   
-  
-  function Initialize(init : CogInitializer)
+  var WorldForward : Real3
   {
-    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    get { return this.Orientation.WorldForward; }
   }
-
-  function OnLogicUpdate(event : UpdateEvent)
+  var WorldUp : Real3
   {
+    get { return this.Orientation.WorldUp; }
   }
-  
-  var WorldForward : Real3 { get { return this.Orientation.WorldForward;} }
-  var WorldUp : Real3 { get { return this.Orientation.WorldUp;} }
   var TilePosY : Real
   {
     get { return this.Transform.WorldTranslation.Y + this.HeightOffset;}
@@ -30,7 +31,12 @@ class PlayerHandManager : ZilchComponent
   {
     get { return this.Transform.WorldTranslation.Y + this.SelectedHeightOffset;}
   }
+  var CurrentHandSize : Integer
+  {
+    get { return this.Tiles.Count; } 
+  }
   
+  // Converts a index into the hand to the given tile cog
   function TileCogFromIndex(index : Integer) : Cog
   {
     if(0 <= index && index <= this.Tiles.Count)
@@ -38,6 +44,7 @@ class PlayerHandManager : ZilchComponent
     return null;
   }
   
+  // Converts a tile cog into it's index in the hand. Returns -1 if the cog wasn't in the hand.
   function IndexFromCog(cog : Cog) : Integer
   {
     for(var i = 0; i < this.Tiles.Count; ++i)
@@ -48,7 +55,58 @@ class PlayerHandManager : ZilchComponent
     return -1;
   }
   
+  function AddTileNoAnimation(cog : Cog) : Real3
+  {
+    // Add this tile
+    this.Tiles.Add(cog);
+    // Listen for when one of our tiles is clicked
+    Zero.Connect(cog, Events.LeftMouseDown, this.ForwardEvent);
+    
+    // Return the position of where the tile should be
+    var index = this.Tiles.LastIndex;
+    return this.GetTilePosition(index);
+  }
+  
+  function DiscardLastTile(discardType : DiscardType)
+  {
+    var discardIndex = this.Tiles.LastIndex;
+    var discardTile = this.Tiles[discardIndex];
+    this.Tiles.RemoveAt(discardIndex);
+    // Stop listening for the tile being selected since it's no longer in our hand
+    Zero.Disconnect(discardTile, Events.LeftMouseDown, this);
+    
+    // Add the tile to our discard pile
+    var discardCog = this.DiscardHandPath.Cog;
+    if(discardCog != null)
+    {
+      discardCog.PlayerDiscardManager.AddToDiscard(discardTile, discardType);
+    }
+  }
+  
+  function ForwardEvent(event : Event)
+  {
+    this.Owner.DispatchEvent(event.EventId, event);
+  }
+  
+  function SwapTiles(indexA : Integer, indexB : Integer, speed : Real)
+  {
+    this.SwapTiles(indexA, indexB, speed, this.Owner.Actions);
+  }
+  
   function SwapTiles(cogA : Cog, cogB : Cog, speed : Real)
+  {
+    this.SwapTiles(cogA, cogB, speed, this.Owner.Actions);
+  }
+  
+  function SwapTiles(indexA : Integer, indexB : Integer, speed : Real, actionSet : ActionSet)
+  {
+    var cogA = this.TileCogFromIndex(indexA);
+    var cogB = this.TileCogFromIndex(indexB);
+    Console.WriteLine(cogA, cogB, indexA, indexB);
+    this.SwapTiles(cogA, cogB, speed, actionSet);
+  }
+  
+  function SwapTiles(cogA : Cog, cogB : Cog, speed : Real, actionSet : ActionSet)
   {
     // Get the indices and positions for these tiles
     var indexA = this.IndexFromCog(cogA);
@@ -69,7 +127,7 @@ class PlayerHandManager : ZilchComponent
     var dist = Math.Distance(posA, posB);
     var normalizedTime = dist / speed;
     
-    var seq = Actions.Sequence(this.Owner.Actions);
+    var seq = Actions.Sequence(actionSet);
     
     // Move both tiles forward slightly (to avoid z-fighting)
     var moveForwardGroup = Actions.Group(seq);
@@ -85,39 +143,33 @@ class PlayerHandManager : ZilchComponent
     var moveBackGroup = Actions.Group(seq);
     Actions.Property(moveBackGroup, @cogA.Transform.WorldTranslation, posB, forwardTime, Ease.Linear);
     Actions.Property(moveBackGroup, @cogB.Transform.WorldTranslation, posA, forwardTime, Ease.Linear);
+    
+    Actions.Call(seq, this.FinishedSwap);
   }
   
-  function AddTileNoAnimation(cog : Cog) : Real3
+  function FinishedSwap()
   {
-    this.Tiles.Add(cog);
-    Zero.Connect(cog, Events.LeftMouseDown, this.ForwardEvent);
-    var index = this.Tiles.LastIndex;
-    return this.GetTilePosition(index);
-  }
-  
-  function ForwardEvent(event : Event)
-  {
-    this.Owner.DispatchEvent(event.EventId, event);
+    this.Owner.DispatchEvent(Events.FinishedTileSwap, ZilchEvent());
   }
   
   function GetTilePosition(index : Integer) : Real3
   {
+    var maxHandSize = PlayerHandManager.HandSize;
     var pos = this.Transform.WorldTranslation;
-    var halfHandSize = (PlayerHandManager.HandSize / 2.0);
-    var totalHandSize = PlayerHandManager.HandSize * this.TileWidth + (PlayerHandManager.HandSize - 1) * this.SpaceBetweenTiles;
+    var halfHandSize = maxHandSize / 2.0;
+    var totalHandSize = maxHandSize * this.TileWidth + (maxHandSize - 1) * this.SpaceBetweenTiles;
     
-    var worldOffsetRight = this.Orientation.WorldRight * totalHandSize / 2.0;
+    var planeBasisX = -this.Orientation.WorldRight;
+    var planeBasisY = this.Orientation.WorldUp;
     
-    var worldLeftEdge = pos + worldOffsetRight;
-    var leftToRightDirection = -this.Orientation.WorldRight;
-    
-    
+    // Compute the left edge of where tiles go
+    var worldLeftEdge = pos - planeBasisX * totalHandSize / 2.0;
+    // Compute the offset based upon the tile index
     var localXOffset = index * (this.TileWidth + this.SpaceBetweenTiles);
     var localYOffset = this.HeightOffset;
     var offset = Real3();
-    offset += leftToRightDirection * localXOffset;
-    offset += Real3.YAxis * localYOffset;
-    
+    offset += planeBasisX * localXOffset;
+    offset += planeBasisY * localYOffset;
     return worldLeftEdge + offset;
   }
   

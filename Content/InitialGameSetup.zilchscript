@@ -1,0 +1,64 @@
+class InitialGameSetup : ZilchComponent
+{
+  [Dependency] var GameData : GameSharedData;
+  [Dependency] var WallManager : GameWallManager;
+  
+  sends FinishedBuildingWall : ZilchEvent;
+  
+  function CreateWall()
+  {
+    this.WallManager.CreateWall();
+    
+    var seq = Action.Sequence(this.Owner.Actions);
+    Action.Delay(seq, 1);
+    Action.Call(seq, this.MakePlayerHands);
+  }
+  
+  // Distribute the hands to players
+  function MakePlayerHands()
+  {
+    // Roll a random tile index
+    var startingIndex = this.Owner.RandomContext.DieRoll(GameManager.TotalTiles);
+    startingIndex = startingIndex / 2 - 1;
+    
+    // Set the starting global tile index for the wall manager
+    var wallManager = this.WallManager;
+    wallManager.SetStartingIndex(startingIndex);
+    
+    // There's 3 sets of 4 tiles distributed to players
+    var seq = Actions.Sequence(this.Owner.Actions);
+    for(var mainGroup = 0; mainGroup < 3; ++mainGroup)
+    {
+      var seq2 = Actions.Sequence(seq);
+      
+      for(var playerIndex = 0; playerIndex < 4; ++playerIndex)
+      {
+        var seq3 = Actions.Sequence(seq2);
+        var group = Actions.Group(seq3);
+      
+        // Animate all 4 of the next tiles to the player's hand
+        for(var subIndex = 0; subIndex < 4; ++subIndex)
+        {
+          wallManager.AnimateCurrentTileToPlayerHand(playerIndex, group);
+        }
+      }
+    }
+    
+    // Distribute the last 4 tiles (the 5th tile will be at the start of player1's turn)
+    for(var i = 0; i < 4; ++i)
+    {
+      var playerIndex = i % 4;
+      wallManager.AnimateCurrentTileToPlayerHand(playerIndex, seq);
+    }
+    
+    // Queue up a notification for when we finish distributing the player's hands
+    Actions.Call(seq, this.WallConstructionFinished);
+  }
+  
+  function WallConstructionFinished()
+  {
+    // Tell whoever cares we finished creating player hands
+    this.Owner.DispatchEvent(Events.FinishedBuildingWall, ZilchEvent());
+  }
+}
+

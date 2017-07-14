@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "PlayerDiscardManager"
+		var ResourceId = 0x5958aabf43a6f7b3
+	}
+}

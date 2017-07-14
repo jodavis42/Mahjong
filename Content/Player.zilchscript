@@ -2,45 +2,80 @@ class Player : ZilchComponent
 {
   [Dependency] var Camera : Camera;
   [Property] var HandPath : CogPath = CogPath();
+  [Property] var DiscardButtonPath : CogPath = CogPath("./DiscardButton");
   
   var Hand : PlayerHandManager;
   
   var SelectedTile : Cog = null;
+  sends PlayerFinishedTurn : ZilchEvent;
   
   function Initialize(init : CogInitializer)
   {
     Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
-    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
     Zero.Connect(this.Owner, Events.BeginPlayerTurn, this.OnBeginPlayerTurn);
-    Zero.Connect(this.Owner, Events.EndPlayerTurn, this.OnEndPlayerTurn);
+    Zero.Connect(this.Owner, Events.ForceEndPlayerTurn, this.OnForceEndPlayerTurn);
+  }
+  
+  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  {
+    // Store a path to the hand manager and listen for mouse down (tile selected)
+    // @JoshD: make custom event later!
+    this.Hand = this.HandPath.Cog.PlayerHandManager;
+    Zero.Connect(this.Hand, Events.LeftMouseDown, this.OnLeftMouseDown);
   }
 
   function OnBeginPlayerTurn(event : ZilchEvent)
   {
-    
+    // Since the turn just started start receiving button inputs
+    var discardButtonCog = this.DiscardButtonPath.Cog;
+    if(discardButtonCog != null)
+    {
+      Zero.Connect(discardButtonCog, Events.LeftClick, this.OnDiscardClicked);
+    }
   }
   
-  function OnEndPlayerTurn(event : ZilchEvent)
+  function OnForceEndPlayerTurn(event : Event)
   {
-    
+    // We ran out of time so force a tile discard
+    this.Hand.DiscardLastTile(DiscardType.Regular);
   }
-
-  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  
+  function OnDiscardClicked(event : Event)
   {
-    this.Hand = this.HandPath.Cog.PlayerHandManager;
-    Zero.Connect(this.Hand, Events.LeftMouseDown, this.OnLeftMouseDown);
+    // Manually discard the last tile then notify the game that we ended our turn
+    this.Hand.DiscardLastTile(DiscardType.Regular);
+    this.EndTurn();
+  }
+  
+  function EndTurn()
+  {
+    // Dispatch that we finished our turn
+    this.Owner.DispatchEvent(Events.PlayerFinishedTurn, ZilchEvent());
+    this.TurnEndCleanup();
+  }
+  
+  // Shared logic to cleanup connections when a turn ends (regardless of manually or forced)
+  function TurnEndCleanup()
+  {
+    var discardButtonCog = this.DiscardButtonPath.Cog;
+    if(discardButtonCog != null)
+    {
+      Zero.Disconnect(discardButtonCog, Events.LeftClick, this);
+    }
   }
 
   function OnLeftMouseDown(event : ViewportMouseEvent)
   {
     var tileCog = event.HitObject;
     
+    // If we selected the tile that was already selected then de-select it
     if(this.SelectedTile == tileCog)
     {
       this.SelectTile(null);
       return;
     }
     
+    // If we had a selected tile then swap it with the new one
     if(this.SelectedTile != null)
     {
       this.Hand.SwapTiles(this.SelectedTile, tileCog, 10);
@@ -48,13 +83,14 @@ class Player : ZilchComponent
       return;
     }
     
+    // Otherwise select the new tile
     this.SelectTile(tileCog);
   }
   
-  function SelectTile(cog : Cog)
+  function SelectTile(newSelectedCog : Cog)
   {
     var group = Actions.Group(this.Owner.Actions);
-    Console.WriteLine(this.SelectedTile, cog);
+    // If we had a selected tile then animate back down to the regular position
     if(this.SelectedTile != null)
     {
       var downPos = this.SelectedTile.Transform.WorldTranslation;
@@ -62,16 +98,13 @@ class Player : ZilchComponent
       Actions.Property(group, @this.SelectedTile.Transform.WorldTranslation, downPos, 0.1, Ease.Linear);
     }
     
-    if(cog != null)
+    // if we're selecting a new tile then animate it up a little bit
+    if(newSelectedCog != null)
     {
-      var upPos = cog.Transform.WorldTranslation;
+      var upPos = newSelectedCog.Transform.WorldTranslation;
       upPos.Y = this.Hand.SelectedTilePosY;
-      Actions.Property(group, @cog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
+      Actions.Property(group, @newSelectedCog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
     }
-    this.SelectedTile = cog;
-  }
-
-  function OnLogicUpdate(event : UpdateEvent)
-  {
+    this.SelectedTile = newSelectedCog;
   }
 }

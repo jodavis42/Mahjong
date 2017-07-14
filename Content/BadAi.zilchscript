@@ -1,0 +1,98 @@
+class BadAi : ZilchComponent
+{
+  [Dependency] var Player : Player;
+  
+  [Property] var ProbabilityToKeepTile : Real = 0.7;
+  [Property] var ThinkTimingMinMax : Real2 = Real2(1, 5);
+  [Property] var SwapTimingMinMax : Real2 = Real2(3, 10);
+  
+  var Random : RandomContext = null;
+  var IsMyTurn : Boolean = false;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
+    Zero.Connect(this.Owner, Events.BeginPlayerTurn, this.OnBeginPlayerTurn);
+    Zero.Connect(this.Space, Events.RoundBegin, this.OnRoundBegin);
+  }
+
+  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  {
+    // Cache the random class to make life easier
+    this.Random = this.LevelSettings.RandomContext;
+  }
+
+  function OnRoundBegin(event : ZilchEvent)
+  {
+    // When the round begins start randomly thinking and swapping tiles
+    this.QueueTileSwaps();
+  }
+
+  function OnBeginPlayerTurn(event : ZilchEvent)
+  {
+    // Mark that it's my turn (to stop random swaps)
+    this.IsMyTurn = true;
+    
+    // Determine how long we want to think
+    var thinkTime = this.Random.Range(this.ThinkTimingMinMax.X, this.ThinkTimingMinMax.Y);
+    
+    // Queue up actions to for our think time
+    var seq = Actions.Sequence(this.Owner.Actions);
+    Actions.Delay(seq, thinkTime);
+    Actions.Call(seq, this.ThinkAboutKeepingTile);
+  }
+  
+  function ThinkAboutKeepingTile()
+  {
+    // Determine if we should keep our current tile
+    var shouldKeepTile = this.Random.Probability(this.ProbabilityToKeepTile);
+    if(shouldKeepTile)
+    {
+      // If so, pick another tile to swap out
+      var handSize = this.Player.Hand.CurrentHandSize;
+      var indexA = handSize - 1;
+      var indexB = this.Random.DieRoll(handSize - 2);
+      
+      // Make an action to swap tiles
+      var seq = Actions.Sequence(this.Owner.Actions);
+      this.Player.Hand.SwapTiles(indexA, indexB, 10, seq);
+      // When that action is done discard the swapped tile
+      Actions.Call(seq, this.Discard);
+    }
+    // Otherwise just discard the new tile
+    else
+      this.Discard();
+  }
+  
+  function Discard()
+  {
+    this.IsMyTurn = false;
+    this.Player.Hand.DiscardLastTile(DiscardType.Regular);
+    this.Player.EndTurn();
+  }
+  
+  function QueueTileSwaps()
+  {
+    // Wait a certain amount of time before randomly swapping tiles
+    var delay = this.LevelSettings.RandomContext.Range(this.SwapTimingMinMax.X, this.SwapTimingMinMax.Y);
+    var seq = Actions.Sequence(this.Owner.Actions);
+    Actions.Delay(seq, delay);
+    Action.Call(seq, this.SwapRandomTiles);
+  }
+  
+  function SwapRandomTiles()
+  {
+    // Don't swap if it's currently my turn (can screw up the logic to keep a tile)
+    if(!this.IsMyTurn)
+    {
+      // Pick two random tiles to swap (could be the same but who cares)
+      var handSize = this.Player.Hand.CurrentHandSize;
+      var indexA = this.Random.DieRoll(handSize - 1);
+      var indexB = this.Random.DieRoll(handSize - 1);
+      this.Player.Hand.SwapTiles(indexA, indexB, 10);
+    }
+    
+    // Queue up actions to swap tiles again
+    this.QueueTileSwaps();
+  }
+}

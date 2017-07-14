@@ -1,0 +1,64 @@
+enum DiscardType{Regular, Riichi}
+
+// Keeps track of what kind of a discard this was (needed to know when riichi was declared)
+class DiscardEntry
+{
+  var TileCog : Cog = null;
+  var DiscardType : DiscardType = DiscardType.Regular;
+}
+
+// Manages a player's discard area
+class PlayerDiscardManager : ZilchComponent
+{
+  var Discards : Array[DiscardEntry] = Array[DiscardEntry]();
+  [Dependency] var Orientation : Orientation;
+  
+  // Adds the current tile to the discard pile (animations and all)
+  function AddToDiscard(cog : Cog, discardType : DiscardType)
+  {
+    this.AddToDiscard(cog, discardType, this.Owner.Actions);
+  }
+  
+  // Adds the current tile to the discard pile (animations and all)
+  function AddToDiscard(cog : Cog, discardType : DiscardType, actionSet : ActionSet)
+  {
+    // Add the tile to our discard list
+    this.Discards.Add(DiscardEntry() {TileCog = cog, DiscardType = discardType});
+    var index = this.Discards.LastIndex;
+   
+    // Compute the basis vectors and size along the plane of the discards (where y is up)
+    var worldTranslation = this.Owner.Transform.WorldTranslation;
+    var worldScale = this.Owner.Transform.WorldScale;
+    var planeBasisX = -this.Orientation.WorldRight;
+    var planeBasisY = this.Orientation.WorldUp;
+    var planeBasisXSize = worldScale.X;
+    var planeBasisYSize = worldScale.Z;
+    
+    var tileSize = Real3(1, 1.5, 0);
+    var initialOffset = -planeBasisX * planeBasisXSize / 2.0 + planeBasisY * planeBasisYSize / 2.0;
+    var singleTileOffset = planeBasisX * tileSize.X - planeBasisY * tileSize.Y;
+    
+    // Compute the top-left corner of the discard area
+    var topLeftCorner = worldTranslation + initialOffset;
+    // Offset by half a tile to get the 1st tile's position
+    var tile0Position = topLeftCorner + singleTileOffset * 0.5;
+    
+    // The discard pile is a row of 6 tiles
+    var xOffset = index % 6;
+    var yOffset = index / 6;
+    // Compute this tile's position from the current offset (ignoring riichi for now)
+    var tilePosition = tile0Position + planeBasisX * tileSize.X * xOffset - planeBasisY * tileSize.Y * yOffset;
+    var tileRotation = this.GetFaceUpWorldRotationForCog(cog);
+    
+    // Animate the tile to it's position/rotation in the discard pile
+    var group = Actions.Group(actionSet);
+    Actions.Property(group, @cog.Transform.WorldTranslation, tilePosition, 1, Ease.Linear);
+    Actions.Property(group, @cog.Transform.WorldRotation, tileRotation, 1, Ease.Linear);
+  }
+  
+  function GetFaceUpWorldRotationForCog(cog : Cog) : Quaternion
+  {
+    var cogOrientation = cog.Orientation;
+    return cogOrientation.GetLookAtDirectionWithUpRotation(this.Orientation.WorldForward, this.Orientation.WorldUp);
+  }
+}

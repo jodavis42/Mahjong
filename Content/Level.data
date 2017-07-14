@@ -44,9 +44,8 @@ Level
 			var RandomSeed = false
 			var Seed = 3421809637
 		}
-		GameManager 
+		GameSharedData 
 		{
-			var TurnTime = 15
 			var EastWallPath = CogPath
 			{
 				var Path = ":/Walls/EastWallGroup"
@@ -227,6 +226,13 @@ Level
 				var PathPreference1 = CogPathPreference.SpaceRelative
 				var PathPreference2 = CogPathPreference.Absolute
 			}
+		}
+		GameWallManager 
+		{
+		}
+		GameManager 
+		{
+			var TurnTime = 30
 			var TimerTextCogPath = CogPath
 			{
 				var Path = ":/TimeText"
@@ -258,6 +264,9 @@ Level
 				var PathPreference2 = CogPathPreference.Absolute
 			}
 			var CurrentPlayer = WindType.None
+		}
+		InitialGameSetup 
+		{
 		}
 	}
 	Cog 
@@ -402,9 +411,9 @@ Level
 		var LinkId = 18
 		Transform 
 		{
-			var Translation = Real3{-7.47911167, 9.57202148, 3.76160669}
+			var Translation = Real3{18.8248119, 14.4512873, -20.9740162}
 			var Scale = Real3{1, 1, 1}
-			var Rotation = Quaternion{-0.336033374, -0.482116163, -0.207133457, 0.782138944}
+			var Rotation = Quaternion{-0.0943879187, 0.871540248, 0.185251087, 0.444061339}
 		}
 		CameraViewport 
 		{
@@ -461,10 +470,10 @@ Level
 		{
 			var ControlMode = ControlMode.Orbit
 			var Previous3DMode = ControlMode.Orbit
-			var LookDistance = 12.1620255
-			var VerticalAngle = 0.811578095
-			var HorizontalAngle = 7.38797808
-			var LookTarget = Real3{0, 0.75, -4.76837158e-07}
+			var LookDistance = 20.0517845
+			var VerticalAngle = 0.418877929
+			var HorizontalAngle = 4.08405113
+			var LookTarget = Real3{4.00526381, 6.29551125, -10.2065477}
 			var MoveSensitivity = 1
 		}
 	}
@@ -507,7 +516,7 @@ Level
 		Transform 
 		{
 			var Translation = Real3{0, 0.825864792, 0}
-			var Scale = Real3{4, 1, 4}
+			var Scale = Real3{6, 1, 6}
 			var Rotation = Quaternion{0, 0, 0, 1}
 		}
 		Model 
@@ -828,6 +837,21 @@ Level
 					var SpaceBetweenTiles = 0.100000001
 					var HeightOffset = 0.25
 					var SelectedHeightOffset = 0.5
+					var DiscardHandPath = CogPath
+					{
+						var Path = ":/Discards/EastDiscard"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 24
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 			}
 			Cog 
@@ -861,6 +885,21 @@ Level
 					var SpaceBetweenTiles = 0.100000001
 					var HeightOffset = 0.25
 					var SelectedHeightOffset = 0.5
+					var DiscardHandPath = CogPath
+					{
+						var Path = ":/Discards/SouthDiscard"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 25
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 			}
 			Cog 
@@ -894,6 +933,21 @@ Level
 					var SpaceBetweenTiles = 0.100000001
 					var HeightOffset = 0.25
 					var SelectedHeightOffset = 0.5
+					var DiscardHandPath = CogPath
+					{
+						var Path = ":/Discards/WestDiscard"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 26
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 			}
 			Cog 
@@ -927,6 +981,21 @@ Level
 					var SpaceBetweenTiles = 0.100000001
 					var HeightOffset = 0.25
 					var SelectedHeightOffset = 0.5
+					var DiscardHandPath = CogPath
+					{
+						var Path = ":/Discards/NorthDiscard"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 27
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 			}
 		}
@@ -934,7 +1003,7 @@ Level
 	Cog 
 	{
 		var Name = "Players"
-		var LinkId = 24
+		var LinkId = 28
 		Transform 
 		{
 			var Translation = Real3{0, 0, 0}
@@ -1034,6 +1103,21 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var DiscardButtonPath = CogPath
+					{
+						var Path = "./DiscardButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 29
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1062,6 +1146,47 @@ Level
 						var PathPreference0 = CogPathPreference.CogRelative
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
+					}
+				}
+				Hierarchy 
+				{
+					Cog 
+					{
+						var Name = "DiscardButton"
+						var LinkId = 29
+						Transform 
+						{
+							var Translation = Real3{7.40393162, 3.16043711, -3.27851295}
+							var Scale = Real3{1, 1, 1}
+							var Rotation = Quaternion{0, 0, 0, 1}
+						}
+						SpriteText 
+						{
+							var Visible = true
+							var ViewCulling = true
+							var VisibilityEvents = true
+							var OverrideBoundingBox = false
+							var LocalAabbCenter = Real3{0, 0, 0}
+							var LocalAabbHalfExtents = Real3{1, 1, 1}
+							var GroupSortValue = 0
+							var Material = "582c575af53d18c9:AlphaSprite"
+							var VertexColor = Real4{1, 1, 1, 1}
+							var GeometryMode = SpriteGeometryMode.ZPlane
+							var Text = "Discard"
+							var Font = "57343753bb4eaaec:NotoSans-Regular"
+							var FontSize = 32
+							var PixelsPerUnit = 128
+							var TextAlign = TextAlign.Center
+						}
+						Reactive 
+						{
+							var Active = true
+						}
+						UiButton 
+						{
+							var RegularColor = Real4{1, 1, 1, 1}
+							var HoverColor = Real4{0.5, 0.5, 0.5, 1}
+						}
 					}
 				}
 			}
@@ -1156,6 +1281,21 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var DiscardButtonPath = CogPath
+					{
+						var Path = "./DiscardButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1185,6 +1325,12 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+				}
+				BadAi 
+				{
+					var ProbabilityToKeepTile = 0.699999988
+					var ThinkTimingMinMax = Real2{5, 10}
+					var SwapTimingMinMax = Real2{0.5, 1}
 				}
 			}
 			Cog 
@@ -1278,6 +1424,21 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var DiscardButtonPath = CogPath
+					{
+						var Path = "./DiscardButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1307,6 +1468,12 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+				}
+				BadAi 
+				{
+					var ProbabilityToKeepTile = 0.699999988
+					var ThinkTimingMinMax = Real2{1, 5}
+					var SwapTimingMinMax = Real2{3, 10}
 				}
 			}
 			Cog 
@@ -1400,6 +1567,21 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var DiscardButtonPath = CogPath
+					{
+						var Path = "./DiscardButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1429,6 +1611,245 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+				}
+				BadAi 
+				{
+					var ProbabilityToKeepTile = 0.699999988
+					var ThinkTimingMinMax = Real2{1, 5}
+					var SwapTimingMinMax = Real2{3, 10}
+				}
+			}
+		}
+	}
+	Cog 
+	{
+		var Name = "Discards"
+		var LinkId = 30
+		Transform 
+		{
+			var Translation = Real3{0, 0, 0}
+			var Scale = Real3{1, 1, 1}
+			var Rotation = Quaternion{0, 0, 0, 1}
+		}
+		Model 
+		{
+			var Visible = true
+			var ViewCulling = true
+			var VisibilityEvents = true
+			var OverrideBoundingBox = false
+			var LocalAabbCenter = Real3{0, 0, 0}
+			var LocalAabbHalfExtents = Real3{1, 1, 1}
+			var GroupSortValue = 0
+			var Material = "583afb5e7bf75e18:ZeroMaterial"
+			var Mesh = "4de0354322b345ae:Cube"
+		}
+		Hierarchy 
+		{
+			Cog 
+			{
+				var Name = "EastDiscard"
+				var LinkId = 24
+				Transform 
+				{
+					var Translation = Real3{0, 1, 5}
+					var Scale = Real3{6, 1, 4}
+					var Rotation = Quaternion{0, 0, 0, 1}
+				}
+				Model 
+				{
+					var Visible = false
+					var ViewCulling = true
+					var VisibilityEvents = true
+					var OverrideBoundingBox = false
+					var LocalAabbCenter = Real3{0, 0, 0}
+					var LocalAabbHalfExtents = Real3{1, 1, 1}
+					var GroupSortValue = 0
+					var Material = "583afb5e7bf75e18:ZeroMaterial"
+					var Mesh = "4de0354322b345ae:Cube"
+				}
+				RigidBody 
+				{
+					var Velocity = Real3{0, 0, 0}
+					var AngularVelocity = Real3{0, 0, 0}
+					var DynamicState = RigidBodyDynamicState.Static
+					var AllowSleep = true
+					var Asleep = false
+					var RotationLocked = false
+					var Mode2D = Mode2DStates.InheritFromSpace
+				}
+				BoxCollider 
+				{
+					var Ghost = true
+					var SendsEvents = true
+					var Material = "4de020863e872da8:DefaultPhysicsMaterial"
+					var CollisionGroup = "4e740859314e5515:DefaultGroup"
+					var Offset = Real3{0, 0, 0}
+					var HalfSize = Real3{0.5, 0.5, 0.5}
+				}
+				Orientation 
+				{
+					var GlobalUp = Real3{0, 1, 0}
+					var LocalOrientationBasis = Quaternion{-3.09086161e-08, -0.707106709, 0.707106769, 3.09086197e-08}
+					var DefaultBases = OrientationBases.Custom
+				}
+				PlayerDiscardManager 
+				{
+				}
+				Hierarchy 
+				{
+				}
+			}
+			Cog 
+			{
+				var Name = "SouthDiscard"
+				var LinkId = 25
+				Transform 
+				{
+					var Translation = Real3{5, 1, 0}
+					var Scale = Real3{6, 1, 4}
+					var Rotation = Quaternion{0, 0.707106829, 0, 0.707106829}
+				}
+				Model 
+				{
+					var Visible = false
+					var ViewCulling = true
+					var VisibilityEvents = true
+					var OverrideBoundingBox = false
+					var LocalAabbCenter = Real3{0, 0, 0}
+					var LocalAabbHalfExtents = Real3{1, 1, 1}
+					var GroupSortValue = 0
+					var Material = "583afb5e7bf75e18:ZeroMaterial"
+					var Mesh = "4de0354322b345ae:Cube"
+				}
+				RigidBody 
+				{
+					var Velocity = Real3{0, 0, 0}
+					var AngularVelocity = Real3{0, 0, 0}
+					var DynamicState = RigidBodyDynamicState.Static
+					var AllowSleep = true
+					var Asleep = false
+					var RotationLocked = false
+					var Mode2D = Mode2DStates.InheritFromSpace
+				}
+				BoxCollider 
+				{
+					var Ghost = true
+					var SendsEvents = true
+					var Material = "4de020863e872da8:DefaultPhysicsMaterial"
+					var CollisionGroup = "4e740859314e5515:DefaultGroup"
+					var Offset = Real3{0, 0, 0}
+					var HalfSize = Real3{0.5, 0.5, 0.5}
+				}
+				Orientation 
+				{
+					var GlobalUp = Real3{0, 1, 0}
+					var LocalOrientationBasis = Quaternion{-3.09086197e-08, 0.707106769, -0.707106709, 3.09086161e-08}
+					var DefaultBases = OrientationBases.Custom
+				}
+				PlayerDiscardManager 
+				{
+				}
+			}
+			Cog 
+			{
+				var Name = "WestDiscard"
+				var LinkId = 26
+				Transform 
+				{
+					var Translation = Real3{0, 1, -5}
+					var Scale = Real3{6, 1, 4}
+					var Rotation = Quaternion{-0, 1, -0, -4.37113883e-08}
+				}
+				Model 
+				{
+					var Visible = false
+					var ViewCulling = true
+					var VisibilityEvents = true
+					var OverrideBoundingBox = false
+					var LocalAabbCenter = Real3{0, 0, 0}
+					var LocalAabbHalfExtents = Real3{1, 1, 1}
+					var GroupSortValue = 0
+					var Material = "583afb5e7bf75e18:ZeroMaterial"
+					var Mesh = "4de0354322b345ae:Cube"
+				}
+				RigidBody 
+				{
+					var Velocity = Real3{0, 0, 0}
+					var AngularVelocity = Real3{0, 0, 0}
+					var DynamicState = RigidBodyDynamicState.Static
+					var AllowSleep = true
+					var Asleep = false
+					var RotationLocked = false
+					var Mode2D = Mode2DStates.InheritFromSpace
+				}
+				BoxCollider 
+				{
+					var Ghost = true
+					var SendsEvents = true
+					var Material = "4de020863e872da8:DefaultPhysicsMaterial"
+					var CollisionGroup = "4e740859314e5515:DefaultGroup"
+					var Offset = Real3{0, 0, 0}
+					var HalfSize = Real3{0.5, 0.5, 0.5}
+				}
+				Orientation 
+				{
+					var GlobalUp = Real3{0, 1, 0}
+					var LocalOrientationBasis = Quaternion{-3.09086197e-08, 0.707106769, -0.707106709, 3.09086161e-08}
+					var DefaultBases = OrientationBases.Custom
+				}
+				PlayerDiscardManager 
+				{
+				}
+			}
+			Cog 
+			{
+				var Name = "NorthDiscard"
+				var LinkId = 27
+				Transform 
+				{
+					var Translation = Real3{-5, 1, 0}
+					var Scale = Real3{6, 1, 4}
+					var Rotation = Quaternion{0, -0.707106829, 0, 0.707106829}
+				}
+				Model 
+				{
+					var Visible = false
+					var ViewCulling = true
+					var VisibilityEvents = true
+					var OverrideBoundingBox = false
+					var LocalAabbCenter = Real3{0, 0, 0}
+					var LocalAabbHalfExtents = Real3{1, 1, 1}
+					var GroupSortValue = 0
+					var Material = "583afb5e7bf75e18:ZeroMaterial"
+					var Mesh = "4de0354322b345ae:Cube"
+				}
+				RigidBody 
+				{
+					var Velocity = Real3{0, 0, 0}
+					var AngularVelocity = Real3{0, 0, 0}
+					var DynamicState = RigidBodyDynamicState.Static
+					var AllowSleep = true
+					var Asleep = false
+					var RotationLocked = false
+					var Mode2D = Mode2DStates.InheritFromSpace
+				}
+				BoxCollider 
+				{
+					var Ghost = true
+					var SendsEvents = true
+					var Material = "4de020863e872da8:DefaultPhysicsMaterial"
+					var CollisionGroup = "4e740859314e5515:DefaultGroup"
+					var Offset = Real3{0, 0, 0}
+					var HalfSize = Real3{0.5, 0.5, 0.5}
+				}
+				Orientation 
+				{
+					var GlobalUp = Real3{0, 1, 0}
+					var LocalOrientationBasis = Quaternion{-3.09086197e-08, 0.707106769, -0.707106709, 3.09086161e-08}
+					var DefaultBases = OrientationBases.Custom
+				}
+				PlayerDiscardManager 
+				{
 				}
 			}
 		}
@@ -1537,6 +1958,15 @@ Level
 			var FontSize = 32
 			var PixelsPerUnit = 128
 			var TextAlign = TextAlign.Center
+		}
+	}
+	Cog [InheritId:"4faa6050b86884ec:DefaultArchetype"]
+	{
+		Transform 
+		{
+			var Translation = Real3{0, 0, 0}
+			var Rotation = Quaternion{0, 0, 0, 1}
+			var Scale = Real3{1, 1, 1}
 		}
 	}
 }

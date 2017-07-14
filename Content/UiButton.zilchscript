@@ -1,0 +1,26 @@
+class UiButton : ZilchComponent
+{
+  [Property] var RegularColor : Real4 = Real4(1);
+  [Property] var HoverColor : Real4 = Real4(0.5, 0.5, 0.5, 1);
+  
+  function Initialize(init : CogInitializer)
+  {
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    Zero.Connect(this.Owner, Events.MouseEnter, this.OnMouseEnter);
+    Zero.Connect(this.Owner, Events.MouseExit, this.OnMouseExit);
+  }
+
+  function OnMouseEnter(event : ViewportMouseEvent)
+  {
+    this.Owner.SpriteText.VertexColor = this.HoverColor;
+  }
+  
+  function OnMouseExit(event : ViewportMouseEvent)
+  {
+    this.Owner.SpriteText.VertexColor = this.RegularColor;
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+}

@@ -1,0 +1,44 @@
+// A bunch of shared properties and paths for other scripts to use
+class GameSharedData : ZilchComponent
+{
+  [Property] var EastWallPath : CogPath = CogPath(":/Walls/EastWallGroup");
+  [Property] var SouthWallPath : CogPath = CogPath(":/Walls/SouthWallGroup");
+  [Property] var WestWallPath : CogPath = CogPath(":/Walls/WestWallGroup");
+  [Property] var NorthWallPath : CogPath = CogPath(":/Walls/NorthWallGroup");
+  var WallCogs : Array[Cog] = Array[Cog]();
+  
+  [Property] var EastHandPath : CogPath = CogPath(":/Hands/EastHandGroup");
+  [Property] var SouthHandPath : CogPath = CogPath(":/Hands/SouthHandGroup");
+  [Property] var WestHandPath : CogPath = CogPath(":/Hands/WestHandGroup");
+  [Property] var NorthHandPath : CogPath = CogPath(":/Hands/NorthHandGroup");
+  var HandCogs : Array[Cog] = Array[Cog]();
+  
+  [Property] var EastPlayerPath : CogPath = CogPath(":/Players/EastPlayer");
+  [Property] var SouthPlayerPath : CogPath = CogPath(":/Players/SouthPlayer");
+  [Property] var WestPlayerPath : CogPath = CogPath(":/Players/WestPlayer");
+  [Property] var NorthPlayerPath : CogPath = CogPath(":/Players/NorthPlayer");
+  var PlayerCogs : Array[Cog] = Array[Cog]();
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
+  }
+
+  function OnAllObjectsInitialized(event : CogInitializerEvent)
+  {
+    this.WallCogs.Add(this.EastWallPath.Cog);
+    this.WallCogs.Add(this.SouthWallPath.Cog);
+    this.WallCogs.Add(this.WestWallPath.Cog);
+    this.WallCogs.Add(this.NorthWallPath.Cog);
+    
+    this.HandCogs.Add(this.EastHandPath.Cog);
+    this.HandCogs.Add(this.SouthHandPath.Cog);
+    this.HandCogs.Add(this.WestHandPath.Cog);
+    this.HandCogs.Add(this.NorthHandPath.Cog);
+    
+    this.PlayerCogs.Add(this.EastPlayerPath.Cog);
+    this.PlayerCogs.Add(this.SouthPlayerPath.Cog);
+    this.PlayerCogs.Add(this.WestPlayerPath.Cog);
+    this.PlayerCogs.Add(this.NorthPlayerPath.Cog);
+  }
+}

@@ -1,37 +1,22 @@
 class GameManager : ZilchComponent
 {
-  [Property] var TurnTime : Real = 15;
+  [Dependency] var GameData : GameSharedData;
+  [Dependency] var WallManager : GameWallManager;
+  
   [Static] var TotalTiles : Integer = 17 * 2 * 4;
   
-  [Property] var EastWallPath : CogPath = CogPath(":/Walls/EastWallGroup");
-  [Property] var SouthWallPath : CogPath = CogPath(":/Walls/SouthWallGroup");
-  [Property] var WestWallPath : CogPath = CogPath(":/Walls/WestWallGroup");
-  [Property] var NorthWallPath : CogPath = CogPath(":/Walls/NorthWallGroup");
-  var WallCogs : Array[Cog] = Array[Cog]();
-  
-  [Property] var EastHandPath : CogPath = CogPath(":/Hands/EastHandGroup");
-  [Property] var SouthHandPath : CogPath = CogPath(":/Hands/SouthHandGroup");
-  [Property] var WestHandPath : CogPath = CogPath(":/Hands/WestHandGroup");
-  [Property] var NorthHandPath : CogPath = CogPath(":/Hands/NorthHandGroup");
-  var HandCogs : Array[Cog] = Array[Cog]();
-  
-  [Property] var EastPlayerPath : CogPath = CogPath(":/Players/EastPlayer");
-  [Property] var SouthPlayerPath : CogPath = CogPath(":/Players/SouthPlayer");
-  [Property] var WestPlayerPath : CogPath = CogPath(":/Players/WestPlayer");
-  [Property] var NorthPlayerPath : CogPath = CogPath(":/Players/NorthPlayer");
-  var PlayerCogs : Array[Cog] = Array[Cog]();
-  
+  [Property] var TurnTime : Real = 15;
   [Property] var TimerTextCogPath : CogPath = CogPath(":/TimeText");
   [Property] var CurrentPlayerTextCogPath : CogPath = CogPath(":/CurrentPlayerText");
-  
   [Property] var CurrentPlayer : WindType = WindType.None;
+  
   sends BeginPlayerTurn : ZilchEvent;
-  sends EndPlayerTurn : ZilchEvent;
+  sends ForceEndPlayerTurn : ZilchEvent;
+  sends PlayerEndedTurn : ZilchEvent;
+  sends RoundBegin : ZilchEvent;
   
   var TurnAction : ActionSet = null;
   var TurnTimer : Real = 0;
-  
-  var GlobalTileIndex : Integer;
   
   function Initialize(init : CogInitializer)
   {
@@ -41,26 +26,14 @@ class GameManager : ZilchComponent
 
   function OnAllObjectsInitialized(event : CogInitializerEvent)
   {
-    this.WallCogs.Add(this.EastWallPath.Cog);
-    this.WallCogs.Add(this.SouthWallPath.Cog);
-    this.WallCogs.Add(this.WestWallPath.Cog);
-    this.WallCogs.Add(this.NorthWallPath.Cog);
-    
-    this.HandCogs.Add(this.EastHandPath.Cog);
-    this.HandCogs.Add(this.SouthHandPath.Cog);
-    this.HandCogs.Add(this.WestHandPath.Cog);
-    this.HandCogs.Add(this.NorthHandPath.Cog);
-    
-    this.PlayerCogs.Add(this.EastPlayerPath.Cog);
-    this.PlayerCogs.Add(this.SouthPlayerPath.Cog);
-    this.PlayerCogs.Add(this.WestPlayerPath.Cog);
-    this.PlayerCogs.Add(this.NorthPlayerPath.Cog);
-    
-    this.CreateWall();
+    // Build the wall and distribute player hands
+    Zero.Connect(this.Owner, Events.FinishedBuildingWall, this.OnFinishedBuildingWall);
+    this.Owner.InitialGameSetup.CreateWall();
   }
-
+  
   function OnLogicUpdate(event : UpdateEvent)
   {
+    // Constantly display the current player and timer (if the game is running)
     this.TurnTimer -= event.Dt;
     if(this.CurrentPlayer == WindType.None)
     {
@@ -68,8 +41,6 @@ class GameManager : ZilchComponent
       var playerText = this.CurrentPlayerTextCogPath.Cog.SpriteText;
       timeText.Visible = false;
       playerText.Visible = false;
-      timeText.Text = String.FormatC("Time: %.2f", this.TurnTimer);
-      playerText.Text = "Player: `this.CurrentPlayer`";
     }
     else
     {
@@ -81,167 +52,93 @@ class GameManager : ZilchComponent
       playerText.Text = "Player: `this.CurrentPlayer`";
     }
   }
-  
-  function CreateWall()
+
+  function OnFinishedBuildingWall(event : ZilchEvent)
   {
-    var archetypes = this.GetTileArchetypes4Player();
-    var randomArchetypes = this.Randomize(archetypes, this.Owner.RandomContext);
+    // Start with east
+    this.CurrentPlayer = WindType.East;
     
-    for(var i = 0; i < randomArchetypes.Count; ++i)
-    {
-      var wallIndex = this.GlobalTileIndexToWallIndex(i).X;
-      var archetype = randomArchetypes[i];
-      var wallCog = this.WallCogs[wallIndex];
-      
-      wallCog.WallManager.AddTileToWall(archetype);
-    }
-    
-    var seq = Action.Sequence(this.Owner.Actions);
-    Action.Delay(seq, 1);
-    Action.Call(seq, this.MakePlayerHands);
+    // Notify everyone that the round is beginning (starts ai)
+    this.Space.DispatchEvent(Events.RoundBegin, ZilchEvent());
+    // Start player1's turn
+    this.BeginPlayerTurn();
   }
   
-  function GlobalTileIndexToWallIndex(tileIndex : Integer) : Integer2
+  function GetCurrentPlayerIndex() : Integer
   {
-    var wallTileCount = 17 * 2;
-    return Integer2(tileIndex / wallTileCount, tileIndex % wallTileCount);
-  }
-  
-  function MakePlayerHands()
-  {
-    var index = this.Owner.RandomContext.DieRoll(GameManager.TotalTiles);
-    index = index / 2 - 1;
-    
-    this.GlobalTileIndex = index;
-    var seq = Actions.Sequence(this.Owner.Actions);
-    for(var mainGroup = 0; mainGroup < 3; ++mainGroup)
-    {
-      var seq2 = Actions.Sequence(seq);
-      
-      for(var playerIndex = 0; playerIndex < 4; ++playerIndex)
-      {
-        var seq3 = Actions.Sequence(seq2);
-        var group = Actions.Group(seq3);
-        
-        for(var subIndex = 0; subIndex < 4; ++subIndex)
-        {
-          this.AnimateTileToHand(this.GlobalTileIndex, playerIndex, group);
-          this.GlobalTileIndex = this.FixGlobalIndex(this.GlobalTileIndex - 1);
-        }
-      }
-    }
-    
-    for(var i = 0; i < 5; ++i)
-    {
-      var playerIndex = i % 4;
-      var globalIndex = this.GlobalTileIndex;
-      --this.GlobalTileIndex;
-      this.AnimateTileToHand(globalIndex, playerIndex, seq);
-      globalIndex = (globalIndex + GameManager.TotalTiles - 1) % GameManager.TotalTiles;
-    }
-    Action.Call(seq, this.FinishedSetup);
-  }
-  
-  function FixGlobalIndex(index : Integer) : Integer
-  {
-    if(index < 0)
-      index += GameManager.TotalTiles;
-    return index % GameManager.TotalTiles;
+    return this.CurrentPlayer as Integer;
   }
   
   function GetCurrentPlayerCog() : Cog
   {
-    return this.PlayerCogs[this.CurrentPlayer as Integer];
+    return this.GameData.PlayerCogs[this.GetCurrentPlayerIndex()];
   }
   
-  function FinishedSetup()
+  function BeginPlayerTurn()
   {
-    this.CurrentPlayer = WindType.East;
     var currentPlayer = this.GetCurrentPlayerCog();
+    var currentPlayerIndex = this.GetCurrentPlayerIndex();
+    // Listen to the current player trying to end their turn
+    Zero.Connect(currentPlayer, Events.PlayerFinishedTurn, this.OnPlayerFinishedTurn);
     
+    // Animate the tile to the player's hand
+    var seq = Actions.Sequence(this.Owner.Actions);
+    this.WallManager.AnimateCurrentTileToPlayerHand( currentPlayerIndex, seq);
+    Actions.Call(seq, this.PlayerHasBeenDealtTile);
+  }
+  
+  function PlayerHasBeenDealtTile()
+  {
+    // Tell the player to begin their turn
+    var currentPlayer = this.GetCurrentPlayerCog();
     currentPlayer.DispatchEvent(Events.BeginPlayerTurn, ZilchEvent());
-    
+    // Queue up actions to track when a player is out of time
     this.QueueTurnActions();
   }
   
-  function QueueTurnActions()
+  function StartNextPlayerTurn()
   {
-    this.TurnAction = Action.Sequence(this.Owner.Actions);
-    Action.Delay(this.TurnAction, this.TurnTime);
-    Action.Call(this.TurnAction, this.OutOfTurnTime);
-    
-    this.TurnTimer = this.TurnTime;
+    // Update the current player
+    var playerIndex = this.CurrentPlayer as Integer;
+    playerIndex = (playerIndex + 1) % 4;
+    this.CurrentPlayer = playerIndex as WindType;
+    // Start the next player's turn
+    this.BeginPlayerTurn();
+  }
+
+  function OnPlayerFinishedTurn(event : ZilchEvent)
+  {
+    // The player manually finished their turn (didn't run out of time).
+    // First, cancel the current turn actions so we don't trigger "out of time" logic
+    this.TurnAction.Cancel();
+    // Stop listening for the current player's turn finish
+    var currentPlayer = this.GetCurrentPlayerCog();
+    Zero.Disconnect(currentPlayer, Events.PlayerFinishedTurn, this);
+    // Start the next player turn
+    this.StartNextPlayerTurn();
   }
   
   function OutOfTurnTime()
   {
+    // Tell the player that they have to end their turn now
     var currentPlayer = this.GetCurrentPlayerCog();
-    currentPlayer.DispatchEvent(Events.EndPlayerTurn, ZilchEvent());
+    currentPlayer.DispatchEvent(Events.ForceEndPlayerTurn, ZilchEvent());
     
-    var playerIndex = this.CurrentPlayer as Integer;
-    playerIndex = (playerIndex + 1) % 4;
-    this.CurrentPlayer = playerIndex as WindType;
-    this.QueueTurnActions();
+    // Start the next player's turn
+    this.StartNextPlayerTurn();
   }
   
-  function AnimateTileToHand(globalTileIndex : Integer, playerIndex : Integer, actionSet : ActionSet)
+  function QueueTurnActions()
   {
-    var wallTileIndex = this.GlobalTileIndexToWallIndex(globalTileIndex);
-    var wallIndex = wallTileIndex.X;
-    var tileIndex = wallTileIndex.Y;
-    var wall = this.WallCogs[wallIndex].WallManager;
-    var tileCog = wall.GetTile(tileIndex);
-  
-    var playerHand = this.HandCogs[playerIndex].PlayerHandManager;
-    this.AnimateTileToHand(tileCog, playerHand, actionSet);
-  }
-  
-  function AnimateTileToHand(tileCog : Cog, playerHand : PlayerHandManager, actionSet : ActionSet)
-  {
-    var mainSeq = Actions.Sequence(actionSet);
-    var animateToHandGroup = Actions.Group(mainSeq);
-    //var seq2 = Actions.Sequence(seq);
+    // Queue up actions to wait a certain amount of time and then
+    // force a turn end (maybe change to logic update?)
+    this.TurnAction = Action.Sequence(this.Owner.Actions);
+    Action.Delay(this.TurnAction, this.TurnTime);
+    Action.Call(this.TurnAction, this.OutOfTurnTime);
     
-    var handPos = playerHand.AddTileNoAnimation(tileCog);
-    var faceDownRot = playerHand.GetFaceDownWorldRotationForCog(tileCog);
-    var faceUpRot = playerHand.GetFaceUpWorldRotationForCog(tileCog);
-    
-    var transform = tileCog.Transform;
-    Actions.Property(animateToHandGroup, @transform.WorldRotation, faceDownRot, 0.25, Ease.Linear);
-    Actions.Property(animateToHandGroup, @transform.WorldTranslation, handPos, 0.3, Ease.Linear);
-    
-    var flipFaceUpGroup = Actions.Group(mainSeq);
-    Actions.Property(flipFaceUpGroup, @transform.WorldRotation, faceUpRot, 0.1, Ease.Linear);
-  }
-  
-  function Randomize(array : Array[Archetype], random : RandomContext) : Array[Archetype]
-  {
-    var results = Array[Archetype]();
-    
-    while(array.Count != 0)
-    {
-      var index = random.RangeExclusiveMax(0, array.Count);
-      results.Add(array[index]);
-      array.RemoveSwap(index);
-    }
-    
-    return results;
-  }
-  
-  function GetTileArchetypes4Player() : Array[Archetype]
-  {
-    var results = Array[Archetype]();
-    var table = ResourceTable.TileToArchetypes;
-    for(var i = 0; i < table.Count; ++i)
-    {
-      var entry = table[i];
-      for(var count = 0; count < entry.Weight; ++count)
-      {
-        results.Add(entry.Resource as Archetype);
-      }
-    }
-    
-    return results;
+    // Keep track of the action set so we can cancel these
+    // actions when the player manually finishes their turn
+    this.TurnTimer = this.TurnTime;
   }
 }
 

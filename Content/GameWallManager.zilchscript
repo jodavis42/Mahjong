@@ -1,0 +1,132 @@
+// Manages the wall, where to draw tiles from, animating tiles to players hands, etc...
+class GameWallManager : ZilchComponent
+{
+  [Dependency] var GameData : GameSharedData;
+  
+  // Where the wall was broken from
+  var StartingGlobalTileIndex : Integer = 0;
+  // Current draw position in the wall
+  var GlobalTileIndex : Integer;
+  
+  // All tiles in the wall (needs to be cleaned up and used)
+  var TileCogs : Array[Cog] = Array[Cog]();
+  
+  function CreateWall()
+  {
+    // Hard-code 4-players right now
+    var archetypes = this.GetTileArchetypes4Player();
+    // Randomize the tiles
+    var randomArchetypes = this.Randomize(archetypes, this.Owner.RandomContext);
+    
+    this.CreateWall(randomArchetypes);
+  }
+  
+  function CreateWall(archetypes : Array[Archetype])
+  {
+    // Create all of the tiles and add them to the respective walls
+    for(var i = 0; i < archetypes.Count; ++i)
+    {
+      var wallIndex = this.GlobalTileIndexToWallIndex(i).X;
+      var archetype = archetypes[i];
+      var wallCog = this.GameData.WallCogs[wallIndex];
+      
+      this.TileCogs.Add(wallCog);
+      wallCog.WallManager.AddTileToWall(archetype);
+    }
+  }
+  
+  function SetStartingIndex(startingIndex : Integer)
+  {
+    this.StartingGlobalTileIndex = startingIndex;
+    this.GlobalTileIndex = startingIndex;
+  }
+  
+  function GlobalTileIndexToWallIndex(tileIndex : Integer) : Integer2
+  {
+    var wallTileCount = 17 * 2;
+    return Integer2(tileIndex / wallTileCount, tileIndex % wallTileCount);
+  }
+  
+  function AdvanceGlobalIndex()
+  {
+    // We draw from the wall in a clockwise fashion (current as negative indices, update later?)
+    this.GlobalTileIndex = this.FixGlobalIndex(this.GlobalTileIndex - 1);
+  }
+  
+  function AnimateCurrentTileToPlayerHand(playerIndex : Integer, actionSet : ActionSet)
+  {
+    // Animate the current tile from the end of the wall
+    this.AnimateTileToHand(this.GlobalTileIndex, playerIndex, actionSet);
+    // Update the current tile index
+    this.AdvanceGlobalIndex();
+  }
+  
+  function AnimateTileToHand(globalTileIndex : Integer, playerIndex : Integer, actionSet : ActionSet)
+  {
+    var wallTileIndex = this.GlobalTileIndexToWallIndex(globalTileIndex);
+    var wallIndex = wallTileIndex.X;
+    var tileIndex = wallTileIndex.Y;
+    var wall = this.GameData.WallCogs[wallIndex].WallManager;
+    var tileCog = wall.GetTile(tileIndex);
+  
+    var playerHand = this.GameData.HandCogs[playerIndex].PlayerHandManager;
+    this.AnimateTileToHand(tileCog, playerHand, actionSet);
+  }
+  
+  function AnimateTileToHand(tileCog : Cog, playerHand : PlayerHandManager, actionSet : ActionSet)
+  {
+    var mainSeq = Actions.Sequence(actionSet);
+    var animateToHandGroup = Actions.Group(mainSeq);
+    
+    var handPos = playerHand.AddTileNoAnimation(tileCog);
+    var faceDownRot = playerHand.GetFaceDownWorldRotationForCog(tileCog);
+    var faceUpRot = playerHand.GetFaceUpWorldRotationForCog(tileCog);
+    
+    var transform = tileCog.Transform;
+    Actions.Property(animateToHandGroup, @transform.WorldRotation, faceDownRot, 0.25, Ease.Linear);
+    Actions.Property(animateToHandGroup, @transform.WorldTranslation, handPos, 0.3, Ease.Linear);
+    
+    var flipFaceUpGroup = Actions.Group(mainSeq);
+    Actions.Property(flipFaceUpGroup, @transform.WorldRotation, faceUpRot, 0.1, Ease.Linear);
+  }
+  
+  function FixGlobalIndex(index : Integer) : Integer
+  {
+    // Fix negative indices
+    while(index < 0)
+      index += GameManager.TotalTiles;
+    return index % GameManager.TotalTiles;
+  }
+  
+  function Randomize(array : Array[Archetype], random : RandomContext) : Array[Archetype]
+  {
+    var results = Array[Archetype]();
+    
+    // Randomly select a tile until they're all gone
+    while(array.Count != 0)
+    {
+      var index = random.RangeExclusiveMax(0, array.Count);
+      results.Add(array[index]);
+      array.RemoveSwap(index);
+    }
+    
+    return results;
+  }
+  
+  function GetTileArchetypes4Player() : Array[Archetype]
+  {
+    // Use the given resource table with it's weights to determine how many tiles belong in this game
+    var results = Array[Archetype]();
+    var table = ResourceTable.TileToArchetypes;
+    for(var i = 0; i < table.Count; ++i)
+    {
+      var entry = table[i];
+      for(var count = 0; count < entry.Weight; ++count)
+      {
+        results.Add(entry.Resource as Archetype);
+      }
+    }
+    
+    return results;
+  }
+}
