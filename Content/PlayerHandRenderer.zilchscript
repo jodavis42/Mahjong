@@ -190,9 +190,9 @@ class PlayerHandRenderer : ZilchComponent
     debugSettings.DepthSettings.DepthMode = DepthMode.Read;
     debugSettings.DepthSettings.DepthCompareFunc = TextureCompareFunc.LessEqual;
     
-    event.AddRenderTaskRenderPass(debugSettings, RenderGroup.DebugDraw, DefaultRenderPass());
+    event.AddRenderTaskRenderPass(debugSettings, RenderGroup.DebugDraw, ColorOutput());
     
     debugSettings.DepthSettings.DepthMode = DepthMode.Disabled;
-    event.AddRenderTaskRenderPass(debugSettings, RenderGroup.DebugDrawOnTop, DefaultRenderPass());
+    event.AddRenderTaskRenderPass(debugSettings, RenderGroup.DebugDrawOnTop, ColorOutput());
   }
 }

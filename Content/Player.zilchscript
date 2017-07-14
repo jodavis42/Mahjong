@@ -4,7 +4,8 @@ class Player : ZilchComponent
   [Property] var HandPath : CogPath = CogPath();
   [Property] var DiscardButtonPath : CogPath = CogPath("./DiscardButton");
   
-  var Hand : PlayerHandManager;
+  var Hand : PlayerHandManager = null;
+  var DiscardButtonCog : Cog = null;
   
   var SelectedTile : Cog = null;
   sends PlayerFinishedTurn : ZilchEvent;
@@ -18,10 +19,8 @@ class Player : ZilchComponent
   
   function OnAllObjectsInitialized(event : CogInitializerEvent)
   {
-    // Store a path to the hand manager and listen for mouse down (tile selected)
-    // @JoshD: make custom event later!
     this.Hand = this.HandPath.Cog.PlayerHandManager;
-    Zero.Connect(this.Hand, Events.LeftMouseDown, this.OnLeftMouseDown);
+    this.DiscardButtonCog = this.DiscardButtonPath.Cog;
   }
 
   function OnBeginPlayerTurn(event : ZilchEvent)
@@ -62,49 +61,5 @@ class Player : ZilchComponent
     {
       Zero.Disconnect(discardButtonCog, Events.LeftClick, this);
     }
-  }
-
-  function OnLeftMouseDown(event : ViewportMouseEvent)
-  {
-    var tileCog = event.HitObject;
-    
-    // If we selected the tile that was already selected then de-select it
-    if(this.SelectedTile == tileCog)
-    {
-      this.SelectTile(null);
-      return;
-    }
-    
-    // If we had a selected tile then swap it with the new one
-    if(this.SelectedTile != null)
-    {
-      this.Hand.SwapTiles(this.SelectedTile, tileCog, 10);
-      this.SelectedTile = null;
-      return;
-    }
-    
-    // Otherwise select the new tile
-    this.SelectTile(tileCog);
-  }
-  
-  function SelectTile(newSelectedCog : Cog)
-  {
-    var group = Actions.Group(this.Owner.Actions);
-    // If we had a selected tile then animate back down to the regular position
-    if(this.SelectedTile != null)
-    {
-      var downPos = this.SelectedTile.Transform.WorldTranslation;
-      downPos.Y = this.Hand.TilePosY;
-      Actions.Property(group, @this.SelectedTile.Transform.WorldTranslation, downPos, 0.1, Ease.Linear);
-    }
-    
-    // if we're selecting a new tile then animate it up a little bit
-    if(newSelectedCog != null)
-    {
-      var upPos = newSelectedCog.Transform.WorldTranslation;
-      upPos.Y = this.Hand.SelectedTilePosY;
-      Actions.Property(group, @newSelectedCog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
-    }
-    this.SelectedTile = newSelectedCog;
   }
 }

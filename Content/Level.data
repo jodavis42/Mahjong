@@ -342,8 +342,8 @@ Level
 		}
 		DirectionalLight 
 		{
-			var LightColorValue = Real3{1, 1, 1}
-			var LightIntensityValue = 1
+			var LightColor = Real4{1, 1, 1, 1}
+			var LightIntensity = 1
 		}
 		CameraViewport 
 		{
@@ -411,9 +411,9 @@ Level
 		var LinkId = 18
 		Transform 
 		{
-			var Translation = Real3{18.8248119, 14.4512873, -20.9740162}
+			var Translation = Real3{-39.2071609, 35.9453239, 51.4374275}
 			var Scale = Real3{1, 1, 1}
-			var Rotation = Quaternion{-0.0943879187, 0.871540248, 0.185251087, 0.444061339}
+			var Rotation = Quaternion{-0.240552112, -0.445894301, -0.125754893, 0.852935314}
 		}
 		CameraViewport 
 		{
@@ -470,10 +470,10 @@ Level
 		{
 			var ControlMode = ControlMode.Orbit
 			var Previous3DMode = ControlMode.Orbit
-			var LookDistance = 20.0517845
-			var VerticalAngle = 0.418877929
-			var HorizontalAngle = 4.08405113
-			var LookTarget = Real3{4.00526381, 6.29551125, -10.2065477}
+			var LookDistance = 66.5742569
+			var VerticalAngle = 0.549777508
+			var HorizontalAngle = 7.24658966
+			var LookTarget = Real3{7.40393162, 1.16043711, 19.0406761}
 			var MoveSensitivity = 1
 		}
 	}
@@ -1118,6 +1118,9 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+				}
+				HumanPlayer 
+				{
 				}
 				PlayerHandRenderer 
 				{
