@@ -42,6 +42,7 @@ class PlayerTurnState : ZilchComponent
     {
       var currentPlayer = this.GameManager.GetCurrentPlayerCog();
       this.DiscardTileFromPlayer(currentPlayer.Player);
+      Zero.Disconnect(this.Space, Events.LogicUpdate, this);
     }
   }
 
