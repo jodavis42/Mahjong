@@ -69,6 +69,11 @@ class PlayerHandManager : ZilchComponent
   
   function DiscardLastTile(discardType : DiscardType)
   {
+    this.DiscardLastTile(discardType, this.Owner.Actions);
+  }
+  
+  function DiscardLastTile(discardType : DiscardType, actionSet : ActionSet)
+  {
     var discardIndex = this.Tiles.LastIndex;
     var discardTile = this.Tiles[discardIndex];
     this.Tiles.RemoveAt(discardIndex);
@@ -79,7 +84,7 @@ class PlayerHandManager : ZilchComponent
     var discardCog = this.DiscardHandPath.Cog;
     if(discardCog != null)
     {
-      discardCog.PlayerDiscardManager.AddToDiscard(discardTile, discardType);
+      discardCog.PlayerDiscardManager.AddToDiscard(discardTile, discardType, actionSet);
     }
   }
   
@@ -102,7 +107,6 @@ class PlayerHandManager : ZilchComponent
   {
     var cogA = this.TileCogFromIndex(indexA);
     var cogB = this.TileCogFromIndex(indexB);
-    Console.WriteLine(cogA, cogB, indexA, indexB);
     this.SwapTiles(cogA, cogB, speed, actionSet);
   }
   

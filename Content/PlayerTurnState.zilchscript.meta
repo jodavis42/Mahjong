@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "PlayerTurnState"
+		var ResourceId = 0x593fef5619165e04
+	}
+}

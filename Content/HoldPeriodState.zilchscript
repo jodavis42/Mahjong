@@ -1,0 +1,54 @@
+class HoldPeriodState : ZilchComponent
+{
+  [Dependency] var GameData : GameSharedData;
+  [Property] var HoldTime : Real = 2;
+  [Property] var ExtraTime : Real = 10;
+  
+  sends BeginHoldPeriod : ZilchEvent;
+  sends EndHoldPeriod : ZilchEvent;
+  sends CallHold : PlayerEvent;
+  sends CallChi : PlayerEvent;
+  sends CallPon : PlayerEvent;
+  
+  var Timer : Real = 0;
+  var MaxTime : Real = 0;
+  var HoldCalled : Boolean = false;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Space, Events.BeginHoldPeriod, this.OnBeginHoldPeriod);
+    Zero.Connect(this.Space, Events.CallHold, this.OnCallHold);
+  }
+
+  function OnCallHold(event : PlayerEvent)
+  {
+    if(this.HoldCalled)
+      return;
+      
+    this.Timer = this.ExtraTime;
+    this.HoldCalled = true;
+  }
+
+  function OnBeginHoldPeriod(event : ZilchEvent)
+  {
+    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    this.HoldCalled = false;
+    this.Timer = this.HoldTime;
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+    this.Timer -= event.Dt;
+    this.Owner.GameManager.TurnTimer = this.Timer;
+    if(this.Timer < 0)
+    {
+      this.EndHoldPeriod();
+    }
+  }
+  
+  function EndHoldPeriod()
+  {
+    this.Space.DispatchEvent(Events.EndHoldPeriod, ZilchEvent());
+    Zero.Disconnect(this.Space, Events.LogicUpdate, this);
+  }
+}

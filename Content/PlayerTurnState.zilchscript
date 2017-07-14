@@ -1,0 +1,76 @@
+class PlayerTurnState : ZilchComponent
+{
+  [Dependency] var GameData : GameSharedData;
+  [Dependency] var GameManager : GameManager;
+  [Dependency] var WallManager : GameWallManager;
+  
+  [Property] var MaxTurnTime : Real = 30;
+  
+  function Initialize(init : CogInitializer)
+  {
+    Zero.Connect(this.Space, Events.BeginPlayerTurnPeriod, this.OnBeginPlayerTurnPeriod);
+  }
+
+  function OnBeginPlayerTurnPeriod(event : ZilchEvent)
+  {
+    // Animate the tile to the player's hand
+    var seq = Actions.Sequence(this.Owner.Actions);
+    var currentPlayerIndex = this.GameManager.GetCurrentPlayerIndex();
+    this.WallManager.AnimateCurrentTileToPlayerHand(currentPlayerIndex, seq);
+    Actions.Call(seq, this.PlayerHasBeenDealtTile);
+  }
+  
+  function PlayerHasBeenDealtTile()
+  {
+    // Start running logic update to keep track of how long the player has left in their turn
+    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    this.GameManager.TurnTimer = this.MaxTurnTime;
+    
+    // Listen to the current player trying to end their turn
+    var currentPlayer = this.GameManager.GetCurrentPlayerCog();
+    Zero.Connect(this.Space, Events.DiscardPlayerTile, this.OnDiscardPlayerTile);
+    
+    // Tell the player their turn has begun
+    currentPlayer.DispatchEvent(Events.BeginPlayerTurn, ZilchEvent());
+  }
+  
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+    this.GameManager.TurnTimer -= event.Dt;
+    // Check for the player running out of time
+    if(this.GameManager.TurnTimer < 0)
+    {
+      var currentPlayer = this.GameManager.GetCurrentPlayerCog();
+      this.DiscardTileFromPlayer(currentPlayer.Player);
+    }
+  }
+
+  function OnDiscardPlayerTile(event : PlayerEvent)
+  {
+    this.DiscardTileFromPlayer(event.Player);
+  }
+  
+  function DiscardTileFromPlayer(player : Player)
+  {
+    // Animate the tile from the player's hand to their discard
+    var seq = Actions.Sequence(this.Owner.Actions);
+    player.Hand.DiscardLastTile(DiscardType.Regular, seq);
+    Actions.Call(seq, this.EndPhase);
+  }
+  
+  function EndPlayerTurn()
+  {
+    this.Space.DispatchEvent(Events.EndPlayerTurnPeriod, ZilchEvent());
+    Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+  
+  function EndPhase()
+  {
+    // Stop listening for events
+    Zero.Disconnect(this.Space, Events.LogicUpdate, this);
+    Zero.Disconnect(this.Space, Events.DiscardPlayerTile, this);
+    
+    // Notify the state manager that we ended this player's turn
+    this.Space.DispatchEvent(Events.EndPlayerTurnPeriod, ZilchEvent());
+  }
+}

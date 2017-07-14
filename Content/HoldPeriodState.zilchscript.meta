@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "HoldPeriodState"
+		var ResourceId = 0x593ff2cf0cbcd9f5
+	}
+}

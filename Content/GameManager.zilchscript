@@ -1,3 +1,15 @@
+class PlayerEvent : ZilchEvent
+{
+  var Player : Player;
+  
+  constructor(player : Player) : base()
+  {
+    this.Player = player;
+  }
+}
+
+//enum PhaseType{Startup, PlayerTurn}
+
 class GameManager : ZilchComponent
 {
   [Dependency] var GameData : GameSharedData;
@@ -14,6 +26,14 @@ class GameManager : ZilchComponent
   sends ForceEndPlayerTurn : ZilchEvent;
   sends PlayerEndedTurn : ZilchEvent;
   sends RoundBegin : ZilchEvent;
+  sends DiscardPlayerTile : PlayerEvent;
+  sends BeginHoldPeriod : ZilchEvent;
+  sends EndHoldPeriod : ZilchEvent;
+  sends BeginPlayerTurnPeriod : ZilchEvent;
+  sends EndPlayerTurnPeriod : ZilchEvent;
+  sends CallHold : PlayerEvent;
+  sends CallChi : PlayerEvent;
+  sends CallPon : PlayerEvent;
   
   var TurnAction : ActionSet = null;
   var TurnTimer : Real = 0;
@@ -21,6 +41,8 @@ class GameManager : ZilchComponent
   function Initialize(init : CogInitializer)
   {
     Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    Zero.Connect(this.Space, Events.EndHoldPeriod, this.OnEndHoldPeriod);
+    Zero.Connect(this.Space, Events.EndPlayerTurnPeriod, this.OnEndPlayerTurnPeriod);
     Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
   }
 
@@ -34,7 +56,7 @@ class GameManager : ZilchComponent
   function OnLogicUpdate(event : UpdateEvent)
   {
     // Constantly display the current player and timer (if the game is running)
-    this.TurnTimer -= event.Dt;
+    //this.TurnTimer -= event.Dt;
     if(this.CurrentPlayer == WindType.None)
     {
       var timeText = this.TimerTextCogPath.Cog.SpriteText;
@@ -61,7 +83,7 @@ class GameManager : ZilchComponent
     // Notify everyone that the round is beginning (starts ai)
     this.Space.DispatchEvent(Events.RoundBegin, ZilchEvent());
     // Start player1's turn
-    this.BeginPlayerTurn();
+    this.BeginPlayerTurnPeriod();
   }
   
   function GetCurrentPlayerIndex() : Integer
@@ -74,26 +96,19 @@ class GameManager : ZilchComponent
     return this.GameData.PlayerCogs[this.GetCurrentPlayerIndex()];
   }
   
-  function BeginPlayerTurn()
+  function BeginPlayerTurnPeriod()
   {
-    var currentPlayer = this.GetCurrentPlayerCog();
-    var currentPlayerIndex = this.GetCurrentPlayerIndex();
-    // Listen to the current player trying to end their turn
-    Zero.Connect(currentPlayer, Events.PlayerFinishedTurn, this.OnPlayerFinishedTurn);
-    
-    // Animate the tile to the player's hand
-    var seq = Actions.Sequence(this.Owner.Actions);
-    this.WallManager.AnimateCurrentTileToPlayerHand( currentPlayerIndex, seq);
-    Actions.Call(seq, this.PlayerHasBeenDealtTile);
+    this.Space.DispatchEvent(Events.BeginPlayerTurnPeriod, ZilchEvent());
   }
   
-  function PlayerHasBeenDealtTile()
+  function OnEndPlayerTurnPeriod(event : ZilchEvent)
   {
-    // Tell the player to begin their turn
-    var currentPlayer = this.GetCurrentPlayerCog();
-    currentPlayer.DispatchEvent(Events.BeginPlayerTurn, ZilchEvent());
-    // Queue up actions to track when a player is out of time
-    this.QueueTurnActions();
+    this.Space.DispatchEvent(Events.BeginHoldPeriod, ZilchEvent());
+  }
+  
+  function OnEndHoldPeriod(event : ZilchEvent)
+  {
+    this.StartNextPlayerTurn();
   }
   
   function StartNextPlayerTurn()
@@ -103,42 +118,7 @@ class GameManager : ZilchComponent
     playerIndex = (playerIndex + 1) % 4;
     this.CurrentPlayer = playerIndex as WindType;
     // Start the next player's turn
-    this.BeginPlayerTurn();
-  }
-
-  function OnPlayerFinishedTurn(event : ZilchEvent)
-  {
-    // The player manually finished their turn (didn't run out of time).
-    // First, cancel the current turn actions so we don't trigger "out of time" logic
-    this.TurnAction.Cancel();
-    // Stop listening for the current player's turn finish
-    var currentPlayer = this.GetCurrentPlayerCog();
-    Zero.Disconnect(currentPlayer, Events.PlayerFinishedTurn, this);
-    // Start the next player turn
-    this.StartNextPlayerTurn();
-  }
-  
-  function OutOfTurnTime()
-  {
-    // Tell the player that they have to end their turn now
-    var currentPlayer = this.GetCurrentPlayerCog();
-    currentPlayer.DispatchEvent(Events.ForceEndPlayerTurn, ZilchEvent());
-    
-    // Start the next player's turn
-    this.StartNextPlayerTurn();
-  }
-  
-  function QueueTurnActions()
-  {
-    // Queue up actions to wait a certain amount of time and then
-    // force a turn end (maybe change to logic update?)
-    this.TurnAction = Action.Sequence(this.Owner.Actions);
-    Action.Delay(this.TurnAction, this.TurnTime);
-    Action.Call(this.TurnAction, this.OutOfTurnTime);
-    
-    // Keep track of the action set so we can cancel these
-    // actions when the player manually finishes their turn
-    this.TurnTimer = this.TurnTime;
+    this.BeginPlayerTurnPeriod();
   }
 }
 

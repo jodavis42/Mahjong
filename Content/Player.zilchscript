@@ -3,34 +3,73 @@ class Player : ZilchComponent
   [Dependency] var Camera : Camera;
   [Property] var HandPath : CogPath = CogPath();
   [Property] var DiscardButtonPath : CogPath = CogPath("./DiscardButton");
+  [Property] var HoldButtonPath : CogPath = CogPath("./HoldButton");
+  [Property] var ChiButtonPath : CogPath = CogPath("./ChiButton");
+  [Property] var PonButtonPath : CogPath = CogPath("./PonButton");
   
   var Hand : PlayerHandManager = null;
   var DiscardButtonCog : Cog = null;
+  var HoldButtonCog : Cog = null;
+  var ChiButtonCog : Cog = null;
+  var PonButtonCog : Cog = null;
   
   var SelectedTile : Cog = null;
   sends PlayerFinishedTurn : ZilchEvent;
+  
+  var IsMyTurn : Boolean = false;
   
   function Initialize(init : CogInitializer)
   {
     Zero.Connect(init, Events.AllObjectsInitialized, this.OnAllObjectsInitialized);
     Zero.Connect(this.Owner, Events.BeginPlayerTurn, this.OnBeginPlayerTurn);
     Zero.Connect(this.Owner, Events.ForceEndPlayerTurn, this.OnForceEndPlayerTurn);
+    Zero.Connect(this.Space, Events.BeginHoldPeriod, this.OnBeginHoldPeriod);
+    Zero.Connect(this.Space, Events.EndHoldPeriod, this.OnEndHoldPeriod);
   }
   
   function OnAllObjectsInitialized(event : CogInitializerEvent)
   {
     this.Hand = this.HandPath.Cog.PlayerHandManager;
     this.DiscardButtonCog = this.DiscardButtonPath.Cog;
+    this.HoldButtonCog = this.HoldButtonPath.Cog;
+    this.ChiButtonCog = this.ChiButtonPath.Cog;
+    this.PonButtonCog = this.PonButtonPath.Cog;
+  }
+  function OnBeginHoldPeriod(event : ZilchEvent)
+  {
+    this.ActivateButton(this.HoldButtonCog, Events.LeftClick, this.OnHoldClicked);
+    this.ActivateButton(this.ChiButtonCog, Events.LeftClick, this.OnChiClicked);
+    this.ActivateButton(this.PonButtonCog, Events.LeftClick, this.OnPonClicked);
+  }
+  
+  function OnEndHoldPeriod(event : ZilchEvent)
+  {
+    this.DeactivateButton(this.HoldButtonCog, Events.LeftClick);
+    this.DeactivateButton(this.ChiButtonCog, Events.LeftClick);
+    this.DeactivateButton(this.PonButtonCog, Events.LeftClick);
+  }
+  
+  function OnHoldClicked(event : Event)
+  {
+    this.Space.DispatchEvent(Events.CallHold, PlayerEvent(this));
+  }
+  
+  function OnChiClicked(event : Event)
+  {
+    
+  }
+  
+  function OnPonClicked(event : Event)
+  {
+    
   }
 
   function OnBeginPlayerTurn(event : ZilchEvent)
   {
+    this.IsMyTurn = true;
+    
     // Since the turn just started start receiving button inputs
-    var discardButtonCog = this.DiscardButtonPath.Cog;
-    if(discardButtonCog != null)
-    {
-      Zero.Connect(discardButtonCog, Events.LeftClick, this.OnDiscardClicked);
-    }
+    this.ActivateButton(this.DiscardButtonCog, Events.LeftClick, this.OnDiscardClicked);
   }
   
   function OnForceEndPlayerTurn(event : Event)
@@ -41,25 +80,46 @@ class Player : ZilchComponent
   
   function OnDiscardClicked(event : Event)
   {
-    // Manually discard the last tile then notify the game that we ended our turn
-    this.Hand.DiscardLastTile(DiscardType.Regular);
+    this.DiscardTileAndEndTurn(DiscardType.Regular);
+  }
+  
+  function DiscardTileAndEndTurn(discardType : DiscardType)
+  {
     this.EndTurn();
+    // Manually discard the last tile then notify the game that we ended our turn
+    this.Space.DispatchEvent(Events.DiscardPlayerTile, PlayerEvent(this));
+    //this.LevelSettings.GameManager.PlayerDiscard();
   }
   
   function EndTurn()
   {
     // Dispatch that we finished our turn
-    this.Owner.DispatchEvent(Events.PlayerFinishedTurn, ZilchEvent());
+    //this.Owner.DispatchEvent(Events.PlayerFinishedTurn, ZilchEvent());
     this.TurnEndCleanup();
   }
   
   // Shared logic to cleanup connections when a turn ends (regardless of manually or forced)
   function TurnEndCleanup()
   {
-    var discardButtonCog = this.DiscardButtonPath.Cog;
-    if(discardButtonCog != null)
+    this.IsMyTurn = false;
+    this.DeactivateButton(this.DiscardButtonCog, Events.LeftClick);
+  }
+  
+  function ActivateButton(buttonCog : Cog, eventName : String, callback : delegate(event : Event))
+  {
+    if(buttonCog != null)
     {
-      Zero.Disconnect(discardButtonCog, Events.LeftClick, this);
+      buttonCog.UiButton.Activate();
+      Zero.Connect(buttonCog, eventName, callback);
+    }
+  }
+  
+  function DeactivateButton(buttonCog : Cog, eventName : String)
+  {
+    if(buttonCog != null)
+    {
+      buttonCog.UiButton.Deactivate();
+      Zero.Disconnect(buttonCog, eventName, this);
     }
   }
 }

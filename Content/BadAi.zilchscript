@@ -7,7 +7,6 @@ class BadAi : ZilchComponent
   [Property] var SwapTimingMinMax : Real2 = Real2(3, 10);
   
   var Random : RandomContext = null;
-  var IsMyTurn : Boolean = false;
   
   function Initialize(init : CogInitializer)
   {
@@ -30,9 +29,6 @@ class BadAi : ZilchComponent
 
   function OnBeginPlayerTurn(event : ZilchEvent)
   {
-    // Mark that it's my turn (to stop random swaps)
-    this.IsMyTurn = true;
-    
     // Determine how long we want to think
     var thinkTime = this.Random.Range(this.ThinkTimingMinMax.X, this.ThinkTimingMinMax.Y);
     
@@ -66,9 +62,7 @@ class BadAi : ZilchComponent
   
   function Discard()
   {
-    this.IsMyTurn = false;
-    this.Player.Hand.DiscardLastTile(DiscardType.Regular);
-    this.Player.EndTurn();
+    this.Player.DiscardTileAndEndTurn(DiscardType.Regular);
   }
   
   function QueueTileSwaps()
@@ -83,7 +77,7 @@ class BadAi : ZilchComponent
   function SwapRandomTiles()
   {
     // Don't swap if it's currently my turn (can screw up the logic to keep a tile)
-    if(!this.IsMyTurn)
+    if(!this.Player.IsMyTurn)
     {
       // Pick two random tiles to swap (could be the same but who cares)
       var handSize = this.Player.Hand.CurrentHandSize;

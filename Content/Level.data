@@ -268,6 +268,15 @@ Level
 		InitialGameSetup 
 		{
 		}
+		HoldPeriodState 
+		{
+			var HoldTime = 2
+			var ExtraTime = 10
+		}
+		PlayerTurnState 
+		{
+			var MaxTurnTime = 30
+		}
 	}
 	Cog 
 	{
@@ -411,9 +420,9 @@ Level
 		var LinkId = 18
 		Transform 
 		{
-			var Translation = Real3{-39.2071609, 35.9453239, 51.4374275}
+			var Translation = Real3{7.47911453, 1.47177589, 23.8214149}
 			var Scale = Real3{1, 1, 1}
-			var Rotation = Quaternion{-0.240552112, -0.445894301, -0.125754893, 0.852935314}
+			var Rotation = Quaternion{0.0235596877, 0.00786017627, -0.000185239493, 0.999691546}
 		}
 		CameraViewport 
 		{
@@ -470,10 +479,10 @@ Level
 		{
 			var ControlMode = ControlMode.Orbit
 			var Previous3DMode = ControlMode.Orbit
-			var LookDistance = 66.5742569
-			var VerticalAngle = 0.549777508
-			var HorizontalAngle = 7.24658966
-			var LookTarget = Real3{7.40393162, 1.16043711, 19.0406761}
+			var LookDistance = 4.78664446
+			var VerticalAngle = -0.0471251905
+			var HorizontalAngle = 6.26746035
+			var LookTarget = Real3{7.40393162, 1.69726396, 19.0406761}
 			var MoveSensitivity = 1
 		}
 	}
@@ -1018,7 +1027,7 @@ Level
 				var LinkId = 10
 				Transform 
 				{
-					var Translation = Real3{0, -2, 22.3191891}
+					var Translation = Real3{0, 1.11472678, 22.3191891}
 					var Scale = Real3{1, 1, 1}
 					var Rotation = Quaternion{0, 0, 0, 1}
 				}
@@ -1039,7 +1048,7 @@ Level
 					var ForwardViewportEvents = false
 					var RenderOrder = 1
 					var NormalizedSize = Real2{1, 1}
-					var NormalizedOffset = Real2{0, 0.699999988}
+					var NormalizedOffset = Real2{0, 0.400000006}
 					var CameraPath = CogPath
 					{
 						var Path = "."
@@ -1118,6 +1127,51 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var HoldButtonPath = CogPath
+					{
+						var Path = "./HoldButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 30
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var ChiButtonPath = CogPath
+					{
+						var Path = "./ChiButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 31
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var PonButtonPath = CogPath
+					{
+						var Path = "./PonButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 32
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				HumanPlayer 
 				{
@@ -1159,7 +1213,7 @@ Level
 						var LinkId = 29
 						Transform 
 						{
-							var Translation = Real3{7.40393162, 3.16043711, -3.27851295}
+							var Translation = Real3{7.40393162, 0.582537174, -3.27851295}
 							var Scale = Real3{1, 1, 1}
 							var Rotation = Quaternion{0, 0, 0, 1}
 						}
@@ -1188,7 +1242,125 @@ Level
 						UiButton 
 						{
 							var RegularColor = Real4{1, 1, 1, 1}
-							var HoverColor = Real4{0.5, 0.5, 0.5, 1}
+							var HoverColor = Real4{0.949999988, 0.460750014, 0.490104973, 1}
+							var InactiveColor = Real4{0.290000021, 0.290000021, 0.290000021, 1}
+						}
+					}
+					Cog 
+					{
+						var Name = "HoldButton"
+						var LinkId = 30
+						Transform 
+						{
+							var Translation = Real3{7.40393162, 0.226535559, -3.27851295}
+							var Scale = Real3{1, 1, 1}
+							var Rotation = Quaternion{0, 0, 0, 1}
+						}
+						SpriteText 
+						{
+							var Visible = true
+							var ViewCulling = true
+							var VisibilityEvents = true
+							var OverrideBoundingBox = false
+							var LocalAabbCenter = Real3{0, 0, 0}
+							var LocalAabbHalfExtents = Real3{1, 1, 1}
+							var GroupSortValue = 0
+							var Material = "582c575af53d18c9:AlphaSprite"
+							var VertexColor = Real4{1, 1, 1, 1}
+							var GeometryMode = SpriteGeometryMode.ZPlane
+							var Text = "Hold"
+							var Font = "57343753bb4eaaec:NotoSans-Regular"
+							var FontSize = 32
+							var PixelsPerUnit = 128
+							var TextAlign = TextAlign.Center
+						}
+						Reactive 
+						{
+							var Active = true
+						}
+						UiButton 
+						{
+							var RegularColor = Real4{1, 1, 1, 1}
+							var HoverColor = Real4{0.949999988, 0.460750014, 0.490104973, 1}
+							var InactiveColor = Real4{0.290000021, 0.290000021, 0.290000021, 1}
+						}
+					}
+					Cog 
+					{
+						var Name = "ChiButton"
+						var LinkId = 31
+						Transform 
+						{
+							var Translation = Real3{7.40393162, -0.0969084501, -3.27851295}
+							var Scale = Real3{1, 1, 1}
+							var Rotation = Quaternion{0, 0, 0, 1}
+						}
+						SpriteText 
+						{
+							var Visible = true
+							var ViewCulling = true
+							var VisibilityEvents = true
+							var OverrideBoundingBox = false
+							var LocalAabbCenter = Real3{0, 0, 0}
+							var LocalAabbHalfExtents = Real3{1, 1, 1}
+							var GroupSortValue = 0
+							var Material = "582c575af53d18c9:AlphaSprite"
+							var VertexColor = Real4{1, 1, 1, 1}
+							var GeometryMode = SpriteGeometryMode.ZPlane
+							var Text = "Chi"
+							var Font = "57343753bb4eaaec:NotoSans-Regular"
+							var FontSize = 32
+							var PixelsPerUnit = 128
+							var TextAlign = TextAlign.Center
+						}
+						Reactive 
+						{
+							var Active = true
+						}
+						UiButton 
+						{
+							var RegularColor = Real4{1, 1, 1, 1}
+							var HoverColor = Real4{0.949999988, 0.460750014, 0.490104973, 1}
+							var InactiveColor = Real4{0.290000021, 0.290000021, 0.290000021, 1}
+						}
+					}
+					Cog 
+					{
+						var Name = "PonButton"
+						var LinkId = 32
+						Transform 
+						{
+							var Translation = Real3{7.40393162, -0.373411417, -3.27851295}
+							var Scale = Real3{1, 1, 1}
+							var Rotation = Quaternion{0, 0, 0, 1}
+						}
+						SpriteText 
+						{
+							var Visible = true
+							var ViewCulling = true
+							var VisibilityEvents = true
+							var OverrideBoundingBox = false
+							var LocalAabbCenter = Real3{0, 0, 0}
+							var LocalAabbHalfExtents = Real3{1, 1, 1}
+							var GroupSortValue = 0
+							var Material = "582c575af53d18c9:AlphaSprite"
+							var VertexColor = Real4{1, 1, 1, 1}
+							var GeometryMode = SpriteGeometryMode.ZPlane
+							var Text = "Pon"
+							var Font = "57343753bb4eaaec:NotoSans-Regular"
+							var FontSize = 32
+							var PixelsPerUnit = 128
+							var TextAlign = TextAlign.Center
+						}
+						Reactive 
+						{
+							var Active = true
+						}
+						UiButton 
+						{
+							var RegularColor = Real4{1, 1, 1, 1}
+							var HoverColor = Real4{0.949999988, 0.460750014, 0.490104973, 1}
+							var InactiveColor = Real4{0.290000021, 0.290000021, 0.290000021, 1}
 						}
 					}
 				}
@@ -1287,6 +1459,51 @@ Level
 					var DiscardButtonPath = CogPath
 					{
 						var Path = "./DiscardButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var HoldButtonPath = CogPath
+					{
+						var Path = "./HoldButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var ChiButtonPath = CogPath
+					{
+						var Path = "./ChiButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var PonButtonPath = CogPath
+					{
+						var Path = "./PonButton"
 						var ErrorOnResolveToNull = false
 						var ErrorOnPathCantCompute = false
 						var ErrorOnDirectLinkFail = false
@@ -1442,6 +1659,51 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var HoldButtonPath = CogPath
+					{
+						var Path = "./HoldButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var ChiButtonPath = CogPath
+					{
+						var Path = "./ChiButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var PonButtonPath = CogPath
+					{
+						var Path = "./PonButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1585,6 +1847,51 @@ Level
 						var PathPreference1 = CogPathPreference.SpaceRelative
 						var PathPreference2 = CogPathPreference.Absolute
 					}
+					var HoldButtonPath = CogPath
+					{
+						var Path = "./HoldButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var ChiButtonPath = CogPath
+					{
+						var Path = "./ChiButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
+					var PonButtonPath = CogPath
+					{
+						var Path = "./PonButton"
+						var ErrorOnResolveToNull = false
+						var ErrorOnPathCantCompute = false
+						var ErrorOnDirectLinkFail = false
+						var UpdateCogOnPathChange = true
+						var UpdatePathOnCogChange = true
+						var UpdateCogOnInitialize = true
+						var ResolvedNullErrorOccurred = false
+						var ResolvedCog = 4294967293
+						var PathPreference0 = CogPathPreference.CogRelative
+						var PathPreference1 = CogPathPreference.SpaceRelative
+						var PathPreference2 = CogPathPreference.Absolute
+					}
 				}
 				PlayerHandRenderer 
 				{
@@ -1627,7 +1934,7 @@ Level
 	Cog 
 	{
 		var Name = "Discards"
-		var LinkId = 30
+		var LinkId = 33
 		Transform 
 		{
 			var Translation = Real3{0, 0, 0}
