@@ -7,6 +7,7 @@ class BadAi : ZilchComponent
   [Property] var SwapTimingMinMax : Real2 = Real2(3, 10);
   
   var Random : RandomContext = null;
+  var Hand : PlayerHandManager = null;
   
   function Initialize(init : CogInitializer)
   {
@@ -19,6 +20,7 @@ class BadAi : ZilchComponent
   {
     // Cache the random class to make life easier
     this.Random = this.LevelSettings.RandomContext;
+    this.Hand = this.Player.Hand;
   }
 
   function OnRoundBegin(event : ZilchEvent)
@@ -49,15 +51,21 @@ class BadAi : ZilchComponent
       var indexA = handSize - 1;
       var indexB = this.Random.DieRoll(handSize - 2);
       
-      // Make an action to swap tiles
-      var seq = Actions.Sequence(this.Owner.Actions);
-      this.Player.Hand.SwapTiles(indexA, indexB, 10, seq);
-      // When that action is done discard the swapped tile
-      Actions.Call(seq, this.Discard);
+      // Swap the two random tiles
+      this.Player.SwapTiles(indexA, indexB);
+      // Listen for when the swap animation has finished (so we can discard)
+      Zero.Connect(this.Hand, Events.FinishedTileSwap, this.OnFinishedSwapToDiscard);
     }
     // Otherwise just discard the new tile
     else
       this.Discard();
+  }
+
+  function OnFinishedSwapToDiscard(event : ZilchEvent)
+  {
+    // Stop listening for a tile swap to finish
+    Zero.Disconnect(this.Hand, Events.FinishedTileSwap, this);
+    this.Discard();
   }
   
   function Discard()
@@ -83,7 +91,7 @@ class BadAi : ZilchComponent
       var handSize = this.Player.Hand.CurrentHandSize;
       var indexA = this.Random.DieRoll(handSize - 1);
       var indexB = this.Random.DieRoll(handSize - 1);
-      this.Player.Hand.SwapTiles(indexA, indexB, 10);
+      this.Player.SwapTiles(indexA, indexB);
     }
     
     // Queue up actions to swap tiles again

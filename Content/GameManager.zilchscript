@@ -1,6 +1,8 @@
 class PlayerEvent : ZilchEvent
 {
   var Player : Player;
+  // [NetProperty]
+  //var PlayerCog : Cog
   
   constructor(player : Player) : base()
   {
@@ -51,6 +53,8 @@ class GameManager : ZilchComponent
     // Build the wall and distribute player hands
     Zero.Connect(this.Owner, Events.FinishedBuildingWall, this.OnFinishedBuildingWall);
     this.Owner.InitialGameSetup.CreateWall();
+    Zero.Connect(this.Space, Events.PlayerSelectTile, this.OnPlayerSelectTile);
+    Zero.Connect(this.Space, Events.PlayerSwapTiles, this.OnPlayerSwapTiles);
   }
   
   function OnLogicUpdate(event : UpdateEvent)
@@ -119,6 +123,20 @@ class GameManager : ZilchComponent
     this.CurrentPlayer = playerIndex as WindType;
     // Start the next player's turn
     this.BeginPlayerTurnPeriod();
+  }
+  
+  function OnPlayerSelectTile(event : TileSelectionEvent)
+  {
+    var player = event.Player;
+    var playerCog = player.Owner;
+    playerCog.DispatchEvent(Events.PlayerSelectTile, event);
+  }
+  
+  function OnPlayerSwapTiles(event : TileSwapEvent)
+  {
+    var player = event.Player;
+    var playerCog = player.Owner;
+    playerCog.DispatchEvent(Events.PlayerSwapTiles, event);
   }
 }
 

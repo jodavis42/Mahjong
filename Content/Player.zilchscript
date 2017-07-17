@@ -1,3 +1,15 @@
+class TileSelectionEvent : PlayerEvent
+{
+  var TileIndex : Integer = 0;
+}
+
+class TileSwapEvent : PlayerEvent
+{
+  var TileIndexA : Integer = 0;
+  var TileIndexB : Integer = 0;
+}
+
+
 class Player : ZilchComponent
 {
   [Dependency] var Camera : Camera;
@@ -15,6 +27,8 @@ class Player : ZilchComponent
   
   var SelectedTile : Cog = null;
   sends PlayerFinishedTurn : ZilchEvent;
+  sends PlayerSelectTile : TileSelectionEvent;
+  sends PlayerSwapTiles : TileSwapEvent;
   
   var IsMyTurn : Boolean = false;
   
@@ -25,6 +39,83 @@ class Player : ZilchComponent
     Zero.Connect(this.Owner, Events.ForceEndPlayerTurn, this.OnForceEndPlayerTurn);
     Zero.Connect(this.Space, Events.BeginHoldPeriod, this.OnBeginHoldPeriod);
     Zero.Connect(this.Space, Events.EndHoldPeriod, this.OnEndHoldPeriod);
+    Zero.Connect(this.Owner, Events.PlayerSelectTile, this.OnPlayerSelectTile);
+    Zero.Connect(this.Owner, Events.PlayerSwapTiles, this.OnPlayerSwapTiles);
+  }
+
+  function OnPlayerSwapTiles(event : TileSwapEvent)
+  {
+    var cogA = this.Hand.TileCogFromIndex(event.TileIndexA);
+    var cogB = this.Hand.TileCogFromIndex(event.TileIndexB);
+    this.AnimateTileSwap(cogA, cogB);
+  }
+  
+  function SelectTile(tileCog : Cog)
+  {
+    var toSend = TileSelectionEvent(this);
+    toSend.TileIndex = this.Hand.IndexFromCog(tileCog);
+    this.Space.DispatchEvent(Events.PlayerSelectTile, toSend);
+  }
+  
+  function SwapTiles(indexA : Integer, indexB : Integer)
+  {
+    var toSend = TileSwapEvent(this);
+    toSend.TileIndexA = indexA;
+    toSend.TileIndexB = indexB;
+    this.Space.DispatchEvent(Events.PlayerSwapTiles, toSend);
+  }
+  
+  function SwapTiles(cogA : Cog, cogB : Cog)
+  {
+    this.SwapTiles(this.Hand.IndexFromCog(cogA), this.Hand.IndexFromCog(cogB));
+  }
+
+  function OnPlayerSelectTile(event : TileSelectionEvent)
+  {
+    var tileCog = this.Hand.TileCogFromIndex(event.TileIndex);
+    // If we selected the tile that was already selected then de-select it
+    if(this.SelectedTile == tileCog)
+    {
+      this.AnimateTileSelection(null);
+      return;
+    }
+    
+    // If we had a selected tile then swap it with the new one
+    if(this.SelectedTile != null)
+    {
+      this.AnimateTileSwap(this.SelectedTile, tileCog);
+      this.SelectedTile = null;
+      return;
+    }
+    
+    // Otherwise select the new tile
+    this.AnimateTileSelection(tileCog);
+  }
+  
+  function AnimateTileSwap(cogA : Cog, cogB : Cog)
+  {
+    this.Hand.SwapTiles(cogA, cogB, 10);
+  }
+  
+  function AnimateTileSelection(newSelectedCog : Cog)
+  {
+    var group = Actions.Group(this.Owner.Actions);
+    // If we had a selected tile then animate back down to the regular position
+    if(this.SelectedTile != null)
+    {
+      var downPos = this.SelectedTile.Transform.WorldTranslation;
+      downPos.Y = this.Hand.TilePosY;
+      Actions.Property(group, @this.SelectedTile.Transform.WorldTranslation, downPos, 0.1, Ease.Linear);
+    }
+    
+    // if we're selecting a new tile then animate it up a little bit
+    if(newSelectedCog != null)
+    {
+      var upPos = newSelectedCog.Transform.WorldTranslation;
+      upPos.Y = this.Hand.SelectedTilePosY;
+      Actions.Property(group, @newSelectedCog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
+    }
+    this.SelectedTile = newSelectedCog;
   }
   
   function OnAllObjectsInitialized(event : CogInitializerEvent)

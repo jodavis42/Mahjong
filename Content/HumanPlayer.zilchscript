@@ -23,44 +23,6 @@ class HumanPlayer : ZilchComponent
   function OnLeftMouseDown(event : ViewportMouseEvent)
   {
     var tileCog = event.HitObject;
-    
-    // If we selected the tile that was already selected then de-select it
-    if(this.SelectedTile == tileCog)
-    {
-      this.SelectTile(null);
-      return;
-    }
-    
-    // If we had a selected tile then swap it with the new one
-    if(this.SelectedTile != null)
-    {
-      this.Hand.SwapTiles(this.SelectedTile, tileCog, 10);
-      this.SelectedTile = null;
-      return;
-    }
-    
-    // Otherwise select the new tile
-    this.SelectTile(tileCog);
-  }
-  
-  function SelectTile(newSelectedCog : Cog)
-  {
-    var group = Actions.Group(this.Owner.Actions);
-    // If we had a selected tile then animate back down to the regular position
-    if(this.SelectedTile != null)
-    {
-      var downPos = this.SelectedTile.Transform.WorldTranslation;
-      downPos.Y = this.Hand.TilePosY;
-      Actions.Property(group, @this.SelectedTile.Transform.WorldTranslation, downPos, 0.1, Ease.Linear);
-    }
-    
-    // if we're selecting a new tile then animate it up a little bit
-    if(newSelectedCog != null)
-    {
-      var upPos = newSelectedCog.Transform.WorldTranslation;
-      upPos.Y = this.Hand.SelectedTilePosY;
-      Actions.Property(group, @newSelectedCog.Transform.WorldTranslation, upPos, 0.1, Ease.Linear);
-    }
-    this.SelectedTile = newSelectedCog;
+    this.Player.SelectTile(tileCog);
   }
 }
