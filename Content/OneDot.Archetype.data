@@ -1,11 +1,11 @@
 [Version:1]
 Cog 
 {
-	var Name = "OneDot"
+	var Name = ""
 	var LinkId = 1
 	Transform 
 	{
-		var Translation = Real3{-8, 0, 0}
+		var Translation = Real3{-13.7348537, 0, 0}
 		var Scale = Real3{1, 1.5, 0.5}
 		var Rotation = Quaternion{0, 0, 0, 1}
 	}
@@ -54,6 +54,30 @@ Cog
 	Reactive 
 	{
 		var Active = true
+	}
+	NetObject 
+	{
+		var DetectOutgoingChanges = true
+		var AcceptIncomingChanges = true
+		var AllowNapping = true
+		var AutomaticChannel = "56f22bdc94800e65:Default"
+		var NetPropertyInfos = Array
+		{
+			Object
+			{
+				var ComponentName = "Transform"
+				var PropertyName = "Translation"
+				var NetChannelConfig = "56f22bdc957a8572:Transform"
+				var NetPropertyConfig = "74f23adc1a810b95:Default"
+			}
+			Object
+			{
+				var ComponentName = "Transform"
+				var PropertyName = "Rotation"
+				var NetChannelConfig = "56f22bdc957a8572:Transform"
+				var NetPropertyConfig = "74f23adc1a810b95:Default"
+			}
+		}
 	}
 	Hierarchy 
 	{

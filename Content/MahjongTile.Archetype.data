@@ -1,27 +1,13 @@
 [Version:1]
 Cog 
 {
-	var Name = ""
+	var Name = "OneDot"
 	var LinkId = 1
 	Transform 
 	{
-		var Translation = Real3{-14.8392191, 16.0617695, -1.02357912}
+		var Translation = Real3{-21.3736477, 14.678339, -1.46572495}
 		var Scale = Real3{1, 1.5, 0.5}
 		var Rotation = Quaternion{0, 0, 0, 1}
-	}
-	Tile 
-	{
-		var TileType = TileType.TwoDot
-	}
-	RigidBody 
-	{
-		var Velocity = Real3{0, 0, 0}
-		var AngularVelocity = Real3{0, 0, 0}
-		var DynamicState = RigidBodyDynamicState.Dynamic
-		var AllowSleep = true
-		var Asleep = false
-		var RotationLocked = false
-		var Mode2D = Mode2DStates.InheritFromSpace
 	}
 	Model 
 	{
@@ -33,7 +19,7 @@ Cog
 		var LocalAabbHalfExtents = Real3{1, 1, 1}
 		var GroupSortValue = 0
 		var Material = "595a3ab21869ddf0:Tile"
-		var Mesh = "5959055ad1133523:Tile"
+		var Mesh = "5959055ad1133523:Tile.defaultobject"
 	}
 	BoxCollider 
 	{
@@ -44,9 +30,44 @@ Cog
 		var Offset = Real3{0, 0, 0}
 		var HalfSize = Real3{0.5, 0.5, 0.5}
 	}
-	TileTextureOverride 
+	Tile 
 	{
 		var AlbedoMap = "595978efc5ceb499:1Dot"
+		var TileType = TileType.OneDot
+	}
+	Orientation 
+	{
+		var GlobalUp = Real3{0, 1, 0}
+		var LocalOrientationBasis = Quaternion{0, 1, 0, -0}
+		var DefaultBases = OrientationBases.ForwardZUpY
+	}
+	Reactive 
+	{
+		var Active = true
+	}
+	NetObject 
+	{
+		var DetectOutgoingChanges = true
+		var AcceptIncomingChanges = true
+		var AllowNapping = true
+		var AutomaticChannel = "56f22bdc94800e65:Default"
+		var NetPropertyInfos = Array
+		{
+			Object
+			{
+				var ComponentName = "Transform"
+				var PropertyName = "Translation"
+				var NetChannelConfig = "56f22bdc957a8572:Transform"
+				var NetPropertyConfig = "74f23adc1a810b95:Default"
+			}
+			Object
+			{
+				var ComponentName = "Transform"
+				var PropertyName = "Rotation"
+				var NetChannelConfig = "56f22bdc957a8572:Transform"
+				var NetPropertyConfig = "74f23adc1a810b95:Default"
+			}
+		}
 	}
 	Hierarchy 
 	{
