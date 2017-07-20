@@ -1,0 +1,58 @@
+class ServerConnection : ZilchComponent
+{
+  [Property] var Port : Integer = 8001;
+  
+  var UserSpace : Space;
+  
+  function Initialize(init : CogInitializer)
+  {
+    //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+  }
+
+  function OnLogicUpdate(event : UpdateEvent)
+  {
+  }
+  
+  function ConnectAsServer()
+  {
+    this.UserSpace = this.GameSession.CreateSpace(Archetype.Space);
+    Zero.Connect(this.GameSession, Events.NetPeerReceivedUserAddRequest, this.OnNetPeerReceivedUserAddRequest);
+    
+    
+    
+    this.Owner.NetPeer.OpenServer(this.Port);
+    
+    
+  }
+
+  function OnNetPeerReceivedUserAddRequest(event : NetPeerReceivedUserAddRequest)
+  {
+    event.ReturnTheirNetUser = this.UserSpace.Create(Archetype.NetUser);
+    event.ReturnOurAddResponse = true;
+    
+    var space = this.Owner.GameSession.FindSpaceByName("Main");
+    space.LoadLevel(Level.Level);
+  }
+  
+  function ConnectAsClient()
+  {
+    this.UserSpace = this.GameSession.CreateSpace(Archetype.Space);
+    Zero.Connect(this.GameSession, Events.NetGameStarted, this.OnNetGameStarted);
+    
+    this.Owner.NetPeer.OpenClient();
+    var ipAddress = IpAddress();
+    ipAddress.Host = "";
+    ipAddress.Port = this.Port;
+    
+    this.Owner.NetPeer.ConnectLink(ipAddress);
+    
+    
+  }
+  
+  function OnNetGameStarted(event : NetGameStarted)
+  {
+    // Could send extra data
+    this.GameSession.NetPeer.AddUser();
+    Console.WriteLine("Started");
+  }
+}

@@ -3,9 +3,9 @@ DataContent
 {
 	DataBuilder 
 	{
-		var Name = "Space"
-		var ResourceId = 0x576f215c0825de61
-		var LoaderType = "Space"
+		var Name = "NetUser"
+		var ResourceId = 0x593a132fc90a8f0e
+		var LoaderType = "Cog"
 		var Version = 0
 		var ShowInEditor = true
 	}

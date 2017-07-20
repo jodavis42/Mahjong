@@ -86,7 +86,7 @@ Level
 		var LinkId = 3
 		Transform 
 		{
-			var Translation = Real3{-5.97162485, 6.08398628, 6.25379229}
+			var Translation = Real3{-4.07792139, 11.246973, 22.6196995}
 			var Scale = Real3{1, 1, 1}
 			var Rotation = Quaternion{-0.151010066, 0.0569047257, 0.00870764535, 0.986854613}
 		}
@@ -145,7 +145,7 @@ Level
 		{
 			var ControlMode = ControlMode.Orbit
 			var Previous3DMode = ControlMode.Orbit
-			var LookDistance = 5.65107489
+			var LookDistance = 22.9162273
 			var VerticalAngle = 0.303687423
 			var HorizontalAngle = 6.16798735
 			var LookTarget = Real3{-6.59145498, 4.39408398, 0.8970505}

@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "ConnectAs"
+		var ResourceId = 0x593f9419b01f00c7
+	}
+}

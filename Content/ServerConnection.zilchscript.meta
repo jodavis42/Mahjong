@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "ServerConnection"
+		var ResourceId = 0x593a11b51d49a057
+	}
+}

@@ -420,9 +420,9 @@ Level
 		var LinkId = 18
 		Transform 
 		{
-			var Translation = Real3{7.47911453, 1.47177589, 23.8214149}
+			var Translation = Real3{-13.7667704, 10.9788103, 0.29859066}
 			var Scale = Real3{1, 1, 1}
-			var Rotation = Quaternion{0.0235596877, 0.00786017627, -0.000185239493, 0.999691546}
+			var Rotation = Quaternion{0.137602076, 0.831626594, 0.236894459, -0.483057022}
 		}
 		CameraViewport 
 		{
@@ -479,10 +479,10 @@ Level
 		{
 			var ControlMode = ControlMode.Orbit
 			var Previous3DMode = ControlMode.Orbit
-			var LookDistance = 4.78664446
-			var VerticalAngle = -0.0471251905
-			var HorizontalAngle = 6.26746035
-			var LookTarget = Real3{7.40393162, 1.69726396, 19.0406761}
+			var LookDistance = 19.4107914
+			var VerticalAngle = 0.555013418
+			var HorizontalAngle = 8.37232685
+			var LookTarget = Real3{0.563277781, 0.750201941, 8.47197151}
 			var MoveSensitivity = 1
 		}
 	}
@@ -2277,6 +2277,17 @@ Level
 			var Translation = Real3{0, 0, 0}
 			var Rotation = Quaternion{0, 0, 0, 1}
 			var Scale = Real3{1, 1, 1}
+		}
+	}
+	Cog 
+	{
+		var Name = "Root"
+		var LinkId = 34
+		Transform 
+		{
+			var Translation = Real3{0, 0, 0}
+			var Scale = Real3{1, 1, 1}
+			var Rotation = Quaternion{0, 0, 0, 1}
 		}
 	}
 }

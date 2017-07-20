@@ -1,0 +1,56 @@
+
+class ServerDude : ZilchComponent
+{
+  function Startup()
+  {
+    Zero.Connect(this.GameSession, Events.NetPeerReceivedUserAddRequest, this.OnNetPeerReceivedUserAddRequest);
+  }
+
+  function OnNetPeerReceivedUserAddRequest(event : NetPeerReceivedUserAddRequest)
+  {
+    //Ignore what they want, send them stuff
+    // space create net user archetype
+    // Have to set this to the net user -> event.ReturnTheirNetUser
+  }
+  
+  function OnCick()
+  {
+    var myPort = 8001;
+    this.Owner.NetPeer.OpenServer(myPort);
+    //this.Owner.NetPeer.IsClient
+    //this.Owner.NetPeer.IsServer;
+    // StartMainLevel
+    
+    
+  }
+  
+  function StartLevel()
+  {
+  }
+}
+
+class ClientDude : ZilchComponent
+{
+  
+  function OnClickButton()
+  {
+    this.Owner.NetPeer.OpenClient();
+    var ipAddress = IpAddress();
+    ipAddress.Port = 8001;
+    ipAddress.Host = "";
+    this.Owner.NetPeer.ConnectLink(ipAddress);
+    
+    Zero.Connect(this.GameSession, Events.NetGameStarted, this.OnNetGameStarted);
+  }
+
+  function OnNetGameStarted(event : NetGameStarted)
+  {
+    // Could send extra data
+    this.GameSession.NetPeer.AddUser();
+  }
+  
+  function OnLevelFinishedLoading()
+  {
+    
+  }
+}

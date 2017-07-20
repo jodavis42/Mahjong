@@ -1,0 +1,9 @@
+[Version:1]
+TextContent 
+{
+	ZilchScriptBuilder 
+	{
+		var Name = "ClientButton"
+		var ResourceId = 0x593a1233fbd8c435
+	}
+}
